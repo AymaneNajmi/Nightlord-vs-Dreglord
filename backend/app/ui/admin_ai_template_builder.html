@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AI DocGen • AI Form/Template Builder</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#f5f7fb; --card:#fff; --text:#0f172a; --muted:rgba(15,23,42,.62); --stroke:rgba(15,23,42,.10);
+      --primary:#2563eb; --primary-600:#1d4ed8; --primary-soft:rgba(37,99,235,.10);
+      --side-w:300px; --side-bg:#0c1220; --side-bg2:#0a1020; --side-text:rgba(255,255,255,.78);
+      --r-xl:20px; --shadow:0 12px 34px rgba(2,6,23,.08); --shadow2:0 10px 26px rgba(2,6,23,.06);
+    }
+    html, body { height:100%; width:100%; }
+    body{
+      margin:0; background:var(--bg); color:var(--text);
+      font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+      font-size:14px; line-height:1.5; overflow:hidden;
+    }
+    *{ box-sizing:border-box; }
+    .app{ position:relative; height:100vh; width:100%; }
+
+    .sidebar{
+      position:fixed; top:0; left:0; bottom:0;
+      width:var(--side-w);
+      background:linear-gradient(180deg,var(--side-bg) 0%,var(--side-bg2) 100%);
+      border-right:1px solid rgba(255,255,255,.06);
+      padding:18px 16px;
+      display:flex; flex-direction:column;
+      overflow:hidden; transition: transform .28s ease, opacity .2s ease; z-index:1000;
+    }
+    .sidebar .side-scroll{ overflow:auto; padding-right:4px; }
+    .sidebar .side-scroll::-webkit-scrollbar{ width:10px; }
+    .sidebar .side-scroll::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.12); border-radius:999px; }
+    .sidebar .side-scroll::-webkit-scrollbar-track{ background:transparent; }
+
+    .brand{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:14px; border-radius:var(--r-xl);
+      background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
+      margin-bottom:14px; flex:0 0 auto;
+    }
+    .brand-left{ display:flex; align-items:center; gap:10px; min-width:0; }
+    .brand img{ height:28px; width:auto; opacity:.98; }
+    .brand-dot{ width:9px; height:9px; border-radius:999px; background:#ef4444; box-shadow:0 0 0 5px rgba(239,68,68,.12); }
+    .brand-menu{
+      width:40px; height:40px; border-radius:14px; display:grid; place-items:center;
+      background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.10);
+      color:rgba(255,255,255,.82); cursor:pointer; flex:0 0 auto;
+    }
+
+    .side-section{ margin-top:8px; padding:0 6px 10px; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,.50); }
+    .side-nav{ display:flex; flex-direction:column; gap:10px; padding:0 4px; }
+    .side-link{ display:flex; align-items:center; gap:12px; padding:14px; border-radius:16px; color:var(--side-text); font-weight:700; border:1px solid transparent; text-decoration:none; min-width:0; }
+    .side-link:hover{ color:#fff; background:rgba(255,255,255,.05); border-color:rgba(255,255,255,.08); }
+    .side-link.active{ color:#fff; background:rgba(255,255,255,.09); border-color:rgba(255,255,255,.10); box-shadow:0 12px 26px rgba(0,0,0,.18); }
+
+    .side-footer{ margin-top:auto; padding-top:14px; flex:0 0 auto; }
+    .logout{ display:flex; align-items:center; gap:10px; padding:14px; border-radius:16px; color:rgba(252,165,165,.95); font-weight:800; border:1px solid rgba(252,165,165,.22); background:rgba(239,68,68,.06); text-decoration:none; }
+    .logout:hover{ background:rgba(239,68,68,.10); color:#fecaca; }
+
+    .main{ margin-left:var(--side-w); height:100vh; overflow:auto; padding:28px 30px 40px; }
+    .main::-webkit-scrollbar{ width:10px; }
+    .main::-webkit-scrollbar-thumb{ background:rgba(15,23,42,.14); border-radius:999px; }
+    .main::-webkit-scrollbar-track{ background:transparent; }
+
+    .container-max{ max-width:1200px; margin:0 auto; }
+    .page-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:18px; flex-wrap:wrap; }
+    .title{ font-size:26px; font-weight:800; letter-spacing:-.3px; margin:0; }
+    .subtitle{ margin-top:6px; color:var(--muted); font-size:14px; }
+    .head-actions{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; justify-content:flex-end; }
+    .btn{ border-radius:14px; font-weight:700; padding:10px 14px; white-space:nowrap; }
+    .btn-outline-secondary{ border-color:rgba(15,23,42,.14); color:rgba(15,23,42,.70); background:#fff; box-shadow:var(--shadow2); }
+    .btn-outline-secondary:hover{ background:rgba(15,23,42,.03); border-color:rgba(15,23,42,.18); color:rgba(15,23,42,.82); }
+    .btn-primary{ background:var(--primary); border-color:var(--primary); box-shadow:0 12px 28px rgba(37,99,235,.18); }
+    .btn-primary:hover{ background:var(--primary-600); border-color:var(--primary-600); }
+
+    .cardx{ background:var(--card); border:1px solid var(--stroke); border-radius:var(--r-xl); box-shadow:var(--shadow); overflow:hidden; }
+    .cardx-head{ padding:18px 20px; display:flex; align-items:center; justify-content:space-between; gap:12px; border-bottom:1px solid rgba(15,23,42,.06); flex-wrap:wrap; }
+    .cardx-body{ padding:18px 20px 20px; }
+    .card-title{ display:flex; align-items:center; gap:10px; font-weight:800; font-size:20px; margin:0; }
+    .card-hint{ margin-top:4px; color:var(--muted); font-size:13px; }
+
+    .iconbox{ width:44px; height:44px; border-radius:14px; display:grid; place-items:center; background:var(--primary-soft); border:1px solid rgba(37,99,235,.14); color:var(--primary); flex:0 0 auto; }
+
+    .table-wrap{ max-height:560px; overflow:auto; border-radius:16px; overflow-x:auto; }
+    .table{ min-width:980px; }
+    .table thead th{ position:sticky; top:0; background:#fff; z-index:2; font-size:12px; letter-spacing:.10em; text-transform:uppercase; color:rgba(15,23,42,.55); border-bottom:1px solid rgba(15,23,42,.08) !important; padding:14px 12px; white-space:nowrap; }
+    .table tbody td{ border-top:1px solid rgba(15,23,42,.06) !important; padding:12px 12px; white-space:nowrap; }
+    .table tbody tr:hover{ background:rgba(37,99,235,.02); }
+
+    .badge-soft{ border-radius:999px; font-weight:800; padding:6px 10px; font-size:12px; }
+    .badge-pending{ background:rgba(59,130,246,.12); color:#1d4ed8; }
+    .badge-running{ background:rgba(234,179,8,.14); color:#92400e; }
+    .badge-done{ background:rgba(34,197,94,.14); color:#166534; }
+    .badge-failed{ background:rgba(239,68,68,.14); color:#991b1b; }
+
+    .app.collapsed .sidebar{ transform:translateX(-100%); opacity:0; pointer-events:none; }
+    .app.collapsed .main{ margin-left:0; }
+
+    @media (max-width: 992px){
+      .sidebar{ transform:translateX(-100%); opacity:0; pointer-events:none; }
+      .app.sidebar-open .sidebar{ transform:translateX(0); opacity:1; pointer-events:auto; }
+      .main{ margin-left:0; padding:18px 14px 24px; }
+    }
+  </style>
+</head>
+
+<body data-required-role="ADMIN">
+<div class="app" id="appRoot">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-left">
+        <img src="/static/img/cbi-logo.png" alt="CBI">
+        <span class="brand-dot"></span>
+      </div>
+      <button class="brand-menu" id="toggleSidebar" type="button" aria-label="Toggle sidebar">
+        <i class="bi bi-list fs-5"></i>
+      </button>
+    </div>
+    <div class="side-scroll">
+      <div class="side-section">Menu principal</div>
+      <nav class="side-nav">
+        <a class="side-link" href="/admin"><i class="bi bi-file-earmark-text"></i> Gérer technologies</a>
+        <a class="side-link" href="/admin/forms"><i class="bi bi-ui-checks-grid"></i> Gérer formulaires</a>
+        <a class="side-link" href="/admin/form-builder"><i class="bi bi-layout-text-window-reverse"></i> Form Builder</a>
+        <a class="side-link active" href="/admin/ai-template-builder"><i class="bi bi-magic"></i> AI Form/Template Builder</a>
+        <a class="side-link" href="/admin/ai-template-builder/new"><i class="bi bi-stars"></i> AI Form Builder Rich</a>
+        <a class="side-link" href="/admin/users"><i class="bi bi-people"></i> Gérer utilisateurs</a>
+      </nav>
+    </div>
+    <div class="side-footer">
+      <a class="logout" href="/login" id="logoutBtn" data-logout>
+        <i class="bi bi-box-arrow-left"></i> Se déconnecter
+      </a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="container-max">
+      <div class="page-head">
+        <div>
+          <h1 class="title">AI Form/Template Builder</h1>
+          <div class="subtitle">Suivi des jobs de génération IA (structure + formulaire).</div>
+        </div>
+        <div class="head-actions">
+          <button class="btn btn-outline-secondary" id="toggleSidebarTop" type="button" title="Afficher/Masquer menu">
+            <i class="bi bi-layout-sidebar-inset"></i>
+          </button>
+          <a class="btn btn-primary" href="/admin/ai-template-builder/new"><i class="bi bi-plus-circle"></i> New Job</a>
+          <button class="btn btn-outline-secondary" id="refreshBtn"><i class="bi bi-arrow-repeat"></i> Refresh</button>
+        </div>
+      </div>
+
+      <div class="cardx">
+        <div class="cardx-head">
+          <div>
+            <div class="card-title"><span class="iconbox"><i class="bi bi-list-task"></i></span> Jobs IA</div>
+            <div class="card-hint">Historique des générations TemplateDoc + FormTemplate.</div>
+          </div>
+        </div>
+        <div class="cardx-body">
+          <div class="table-wrap">
+            <table class="table align-middle">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Techno</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th>Progress</th>
+                  <th>Créé</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="jobsBody">
+                <tr><td colspan="7" class="text-center text-muted py-4">Chargement...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="text-danger mt-3" id="apiErr"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  const appRoot = document.getElementById("appRoot");
+  const toggleSidebar = document.getElementById("toggleSidebar");
+  const toggleSidebarTop = document.getElementById("toggleSidebarTop");
+  toggleSidebar?.addEventListener("click", () => {
+    appRoot.classList.toggle("sidebar-open");
+  });
+  toggleSidebarTop?.addEventListener("click", () => {
+    appRoot.classList.toggle("collapsed");
+  });
+
+  function statusBadge(status){
+    if(status === "DONE") return '<span class="badge-soft badge-done">DONE</span>';
+    if(status === "FAILED") return '<span class="badge-soft badge-failed">FAILED</span>';
+    if(status === "RUNNING") return '<span class="badge-soft badge-running">RUNNING</span>';
+    return '<span class="badge-soft badge-pending">PENDING</span>';
+  }
+
+  async function loadJobs(){
+    const tbody = document.getElementById("jobsBody");
+    const apiErr = document.getElementById("apiErr");
+    apiErr.textContent = "";
+    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">Chargement...</td></tr>';
+    try{
+      const res = await fetch("/api/admin/ai-template-builder/jobs");
+      if(!res.ok){
+        const txt = await res.text();
+        apiErr.textContent = `Erreur API (${res.status}) ${txt}`;
+        return;
+      }
+      const jobs = await res.json();
+      if(!jobs.length){
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">Aucun job pour le moment.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = jobs.map(job => {
+        return `
+          <tr>
+            <td>#${job.id}</td>
+            <td>${job.techno_name || "-"}</td>
+            <td>${job.template_type || "-"}</td>
+            <td>${statusBadge(job.status)}</td>
+            <td>${job.progress || 0}%</td>
+            <td>${new Date(job.created_at).toLocaleString()}</td>
+            <td>
+              <a class="btn btn-sm btn-outline-secondary" href="/admin/ai-template-builder/jobs/${job.id}">
+                Voir
+              </a>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }catch(err){
+      apiErr.textContent = err.message || "Erreur chargement";
+    }
+  }
+
+  document.getElementById("refreshBtn").addEventListener("click", loadJobs);
+  loadJobs();
+</script>
+</body>
+</html>

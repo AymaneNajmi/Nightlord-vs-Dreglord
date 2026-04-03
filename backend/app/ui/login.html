@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login - AI DocGen | CBI</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <style>
+    :root{
+      --cbi-navy:#1b1f3b;     /* proche du bleu CBI */
+      --cbi-blue:#1e66ff;     /* bleu moderne */
+      --cbi-red:#e11d2e;      /* rouge du point du logo */
+      --soft:#f6f8ff;
+    }
+
+    body{
+      min-height:100vh;
+      background: var(--soft);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    .auth-shell{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 24px;
+    }
+
+    .auth-card{
+      width: min(1060px, 100%);
+      border-radius: 22px;
+      overflow:hidden;
+      box-shadow: 0 28px 70px rgba(17, 24, 39, .18);
+      background:#fff;
+    }
+
+    /* LEFT PANEL */
+    .auth-left{
+      position:relative;
+      color:#fff;
+      padding: 46px 44px;
+      background:
+        radial-gradient(1200px 600px at 0% 0%, rgba(30,102,255,.95) 0%, rgba(27,31,59,.98) 55%, rgba(27,31,59,1) 100%);
+      min-height: 520px;
+    }
+
+    /* subtle tech pattern (no image needed) */
+    .auth-left::before{
+      content:"";
+      position:absolute; inset:0;
+      background:
+        linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px);
+      background-size: 52px 52px;
+      opacity:.35;
+      pointer-events:none;
+    }
+
+    .auth-left::after{
+      content:"";
+      position:absolute;
+      width: 520px; height:520px;
+      right:-220px; bottom:-250px;
+      background: radial-gradient(circle, rgba(30,102,255,.55) 0%, rgba(30,102,255,0) 70%);
+      pointer-events:none;
+    }
+
+    .brand-mini{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      z-index:1;
+      opacity:.95;
+      font-weight:600;
+      letter-spacing:.3px;
+    }
+
+    .brand-dot{
+      width:10px; height:10px; border-radius:99px;
+      background: var(--cbi-red);
+      box-shadow: 0 0 0 6px rgba(225,29,46,.18);
+    }
+
+    .welcome{
+      position:relative;
+      z-index:1;
+      margin-top: 64px;
+      max-width: 440px;
+    }
+
+    .welcome .kicker{
+      font-size: 14px;
+      opacity:.9;
+      margin-bottom: 10px;
+    }
+
+    .welcome h1{
+      font-weight: 800;
+      letter-spacing: .06em;
+      line-height: 1.05;
+      font-size: clamp(34px, 3.1vw, 46px);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+
+    .welcome p{
+      opacity:.9;
+      line-height: 1.55;
+      margin:0;
+      max-width: 38ch;
+    }
+
+    /* RIGHT PANEL */
+    .auth-right{
+      padding: 52px 54px;
+      background:#fff;
+      min-height: 520px;
+    }
+
+    .logo-wrap{
+      display:flex;
+      justify-content:flex-end;
+      margin-bottom: 28px;
+    }
+
+    .cbi-logo{
+      height: 40px;
+      width:auto;
+      object-fit:contain;
+    }
+
+    .form-title{
+      font-weight: 800;
+      color: var(--cbi-navy);
+      margin-bottom: 6px;
+    }
+
+    .form-sub{
+      color:#6b7280;
+      margin-bottom: 28px;
+      font-size: 14px;
+    }
+
+    .form-control{
+      border-radius: 14px;
+      padding: 12px 14px;
+      border: 1px solid #e5e7eb;
+      background: #fbfcff;
+    }
+    .form-control:focus{
+      border-color: rgba(30,102,255,.55);
+      box-shadow: 0 0 0 .22rem rgba(30,102,255,.16);
+      background: #fff;
+    }
+
+    .btn-cbi{
+      border-radius: 999px;
+      padding: 12px 16px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      background: linear-gradient(90deg, var(--cbi-blue), #2f8bff);
+      border: none;
+      box-shadow: 0 16px 28px rgba(30,102,255,.22);
+    }
+    .btn-cbi:hover{ filter: brightness(.98); }
+
+    .small-links{
+      font-size: 13px;
+      color:#6b7280;
+    }
+    .small-links a{
+      color: var(--cbi-blue);
+      text-decoration:none;
+      font-weight:600;
+    }
+    .small-links a:hover{ text-decoration:underline; }
+
+    /* Responsive */
+    @media (max-width: 992px){
+      .auth-left, .auth-right{ min-height: unset; }
+      .auth-right{ padding: 40px 28px; }
+      .auth-left{ padding: 40px 28px; }
+      .logo-wrap{ justify-content:flex-start; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="auth-shell">
+    <div class="auth-card">
+      <div class="row g-0">
+        <!-- LEFT -->
+        <div class="col-lg-6">
+          <div class="auth-left h-100">
+            <div class="brand-mini">
+              <span class="brand-dot"></span>
+              <span>CBI • AI DocGen</span>
+            </div>
+
+            <div class="welcome">
+              <div class="kicker">Ravi de vous revoir</div>
+              <h1>WELCOME BACK</h1>
+              <p>
+                Connectez-vous pour accéder à vos templates, formulaires et générations de documents.
+                Une expérience rapide, propre et industrialisée.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="col-lg-6">
+          <div class="auth-right h-100">
+            <div class="logo-wrap">
+              <!-- ✅ Replace with your logo path -->
+              <img class="cbi-logo" src="/static/img/cbi-logo.png" alt="CBI" />
+            </div>
+
+            <h3 class="form-title">Login Account</h3>
+            <div class="form-sub">Entrez vos identifiants pour continuer.</div>
+
+            <div class="mb-3">
+              <label for="email" class="form-label small text-muted">Email</label>
+              <input id="email" type="email" class="form-control" placeholder="name@cbi.ma">
+            </div>
+
+            <div class="mb-3">
+              <label for="password" class="form-label small text-muted">Password</label>
+              <input id="password" type="password" class="form-control" placeholder="••••••••">
+            </div>
+
+            <div class="d-flex align-items-center justify-content-between mb-4 small-links">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="remember" checked>
+                <label class="form-check-label" for="remember">Keep me signed in</label>
+              </div>
+              <a href="#" onclick="return false;">Forgot password?</a>
+            </div>
+
+            <button id="btn" class="btn btn-cbi w-100">Login</button>
+
+            <p id="msg" class="text-danger text-center mt-3 mb-0"></p>
+
+            <div class="text-center mt-4 small-links">
+              Besoin d’un accès ? <a href="#" onclick="return false;">Contacter l’admin</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/login.js"></script>
+</body>
+</html>

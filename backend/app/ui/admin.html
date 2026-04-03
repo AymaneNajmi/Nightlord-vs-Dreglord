@@ -1,0 +1,771 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AI DocGen • Admin</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#f5f7fb; --card:#fff; --text:#0f172a; --muted:rgba(15,23,42,.62); --stroke:rgba(15,23,42,.10);
+      --primary:#2563eb; --primary-600:#1d4ed8; --primary-soft:rgba(37,99,235,.10);
+      --side-w:300px; --side-bg:#0c1220; --side-bg2:#0a1020; --side-text:rgba(255,255,255,.78);
+      --r-xl:20px; --shadow:0 12px 34px rgba(2,6,23,.08); --shadow2:0 10px 26px rgba(2,6,23,.06);
+    }
+
+    html, body { height:100%; width:100%; }
+    body{
+      margin:0;
+      background:var(--bg); color:var(--text);
+      font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+      font-size:14px; line-height:1.5;
+
+      /* IMPORTANT: page doesn't scroll */
+      overflow:hidden;
+    }
+    *{ box-sizing:border-box; }
+
+    /* ===== APP LAYOUT (fixed sidebar + scroll main) ===== */
+    .app{
+      position:relative;
+      height:100vh;
+      width:100%;
+    }
+
+    /* ===== SIDEBAR FIXED ===== */
+    .sidebar{
+      position:fixed;
+      top:0; left:0; bottom:0;
+      width:var(--side-w);
+      background:linear-gradient(180deg,var(--side-bg) 0%,var(--side-bg2) 100%);
+      border-right:1px solid rgba(255,255,255,.06);
+      padding:18px 16px;
+
+      display:flex;
+      flex-direction:column;
+      overflow:hidden; /* sidebar itself doesn't scroll by default */
+      transition: transform .28s ease, opacity .2s ease;
+      z-index:1000;
+    }
+
+    /* optional internal scroll only if sidebar content too big */
+    .sidebar .side-scroll{
+      overflow:auto;
+      padding-right:4px;
+    }
+    .sidebar .side-scroll::-webkit-scrollbar{ width:10px; }
+    .sidebar .side-scroll::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.12); border-radius:999px; }
+    .sidebar .side-scroll::-webkit-scrollbar-track{ background:transparent; }
+
+    .brand{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:14px; border-radius:var(--r-xl);
+      background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
+      margin-bottom:14px;
+      flex:0 0 auto;
+    }
+    .brand-left{ display:flex; align-items:center; gap:10px; min-width:0; }
+    .brand img{ height:28px; width:auto; opacity:.98; }
+    .brand-dot{ width:9px; height:9px; border-radius:999px; background:#ef4444; box-shadow:0 0 0 5px rgba(239,68,68,.12); }
+    .brand-menu{
+      width:40px; height:40px; border-radius:14px;
+      display:grid; place-items:center;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.10);
+      color:rgba(255,255,255,.82);
+      cursor:pointer;
+      flex:0 0 auto;
+    }
+
+    .side-section{
+      margin-top:8px; padding:0 6px 10px;
+      font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,.50);
+    }
+    .side-nav{ display:flex; flex-direction:column; gap:10px; padding:0 4px; }
+    .side-link{
+      display:flex; align-items:center; gap:12px; padding:14px; border-radius:16px;
+      color:var(--side-text); font-weight:700; border:1px solid transparent; text-decoration:none;
+      min-width:0;
+    }
+    .side-link:hover{ color:#fff; background:rgba(255,255,255,.05); border-color:rgba(255,255,255,.08); }
+    .side-link.active{ color:#fff; background:rgba(255,255,255,.09); border-color:rgba(255,255,255,.10); box-shadow:0 12px 26px rgba(0,0,0,.18); }
+
+    .side-footer{
+      margin-top:auto;
+      padding-top:14px;
+      flex:0 0 auto;
+    }
+    .logout{
+      display:flex; align-items:center; gap:10px; padding:14px; border-radius:16px;
+      color:rgba(252,165,165,.95); font-weight:800;
+      border:1px solid rgba(252,165,165,.22); background:rgba(239,68,68,.06);
+      text-decoration:none;
+    }
+    .logout:hover{ background:rgba(239,68,68,.10); color:#fecaca; }
+
+    /* ===== MAIN SCROLL AREA ===== */
+    .main{
+      position:relative;
+      margin-left:var(--side-w);
+      height:100vh;
+
+      /* IMPORTANT: main scrolls, not body */
+      overflow:auto;
+      padding:28px 30px 40px;
+    }
+
+    .main::-webkit-scrollbar{ width:10px; }
+    .main::-webkit-scrollbar-thumb{ background:rgba(15,23,42,.14); border-radius:999px; }
+    .main::-webkit-scrollbar-track{ background:transparent; }
+
+    .container-max{
+      max-width:1200px;
+      margin:0 auto;
+    }
+
+    .page-head{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:16px;
+      margin-bottom:18px; flex-wrap:wrap;
+    }
+    .title{ font-size:26px; font-weight:800; letter-spacing:-.3px; margin:0; }
+    .subtitle{ margin-top:6px; color:var(--muted); font-size:14px; }
+
+    .head-actions{
+      display:flex; align-items:center; gap:12px;
+      flex-wrap:wrap; justify-content:flex-end;
+    }
+
+    .btn{ border-radius:14px; font-weight:700; padding:10px 14px; white-space:nowrap; }
+    .btn-outline-secondary{
+      border-color:rgba(15,23,42,.14); color:rgba(15,23,42,.70); background:#fff; box-shadow:var(--shadow2);
+    }
+    .btn-outline-secondary:hover{ background:rgba(15,23,42,.03); border-color:rgba(15,23,42,.18); color:rgba(15,23,42,.82); }
+    .btn-primary{ background:var(--primary); border-color:var(--primary); box-shadow:0 12px 28px rgba(37,99,235,.18); }
+    .btn-primary:hover{ background:var(--primary-600); border-color:var(--primary-600); }
+
+    .userchip{
+      display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:999px;
+      border:1px solid var(--stroke); background:#fff; box-shadow:var(--shadow2);
+      white-space:nowrap; max-width:100%;
+    }
+    .avatar{
+      width:36px; height:36px; border-radius:999px; display:grid; place-items:center;
+      background:var(--primary); color:#fff; font-weight:900;
+    }
+    .status{ border-radius:999px; font-weight:800; padding:6px 10px; }
+
+    /* Cards */
+    .cardx{ background:var(--card); border:1px solid var(--stroke); border-radius:var(--r-xl); box-shadow:var(--shadow); overflow:hidden; }
+    .cardx-head{
+      padding:18px 20px; display:flex; align-items:center; justify-content:space-between; gap:12px;
+      border-bottom:1px solid rgba(15,23,42,.06);
+      flex-wrap:wrap;
+    }
+    .cardx-body{ padding:18px 20px 20px; }
+
+    .card-title{ display:flex; align-items:center; gap:10px; font-weight:800; font-size:20px; margin:0; }
+    .card-hint{ margin-top:4px; color:var(--muted); font-size:13px; }
+
+    .iconbox{
+      width:44px; height:44px; border-radius:14px; display:grid; place-items:center;
+      background:var(--primary-soft); border:1px solid rgba(37,99,235,.14); color:var(--primary);
+      flex:0 0 auto;
+    }
+
+    /* Inputs */
+    .form-label{ font-size:12px; font-weight:700; color:rgba(15,23,42,.75); margin-bottom:8px; }
+    .form-control,.form-select{
+      border-radius:14px; border:1px solid rgba(15,23,42,.12); padding:11px 12px; font-size:14px; background:#fff;
+      width:100%; min-width:0;
+    }
+    .form-control:focus,.form-select:focus{
+      border-color:rgba(37,99,235,.30); box-shadow:0 0 0 .22rem rgba(37,99,235,.10);
+    }
+    .input-with-icon{ position:relative; min-width:0; }
+    .input-with-icon i{
+      position:absolute; left:12px; top:50%; transform:translateY(-50%);
+      color:rgba(15,23,42,.45); pointer-events:none; font-size:16px;
+    }
+    .input-with-icon input{ padding-left:38px; }
+
+    .create-grid{
+      display:grid;
+      grid-template-columns: 1.2fr 1fr 1fr auto;
+      gap:18px; align-items:end;
+    }
+    .create-grid > *{ min-width:0; }
+    .create-grid .d-grid{ min-width:220px; }
+
+    .bar-grid{
+      display:grid;
+      grid-template-columns: 1.2fr 1fr 1fr auto;
+      gap:18px; align-items:end;
+    }
+    .bar-grid > *{ min-width:0; }
+    .bar-grid .d-grid{ min-width:220px; }
+
+    @media (max-width: 1200px){
+      .create-grid, .bar-grid{ grid-template-columns: 1fr; }
+      .create-grid .d-grid, .bar-grid .d-grid{ min-width:0; }
+    }
+
+    /* Table */
+    .table-wrap{
+      max-height:520px;
+      overflow:auto;
+      border-radius:16px;
+      overflow-x:auto;
+    }
+    .table{
+      width:100%;
+      table-layout:fixed;
+      min-width:0;
+    }
+    .table thead th{
+      position:sticky; top:0; background:#fff; z-index:2;
+      font-size:12px; letter-spacing:.10em; text-transform:uppercase;
+      color:rgba(15,23,42,.55);
+      border-bottom:1px solid rgba(15,23,42,.08) !important;
+      padding:14px 12px;
+      white-space:nowrap;
+    }
+    .table tbody td{ border-top:1px solid rgba(15,23,42,.06) !important; padding:12px 12px; white-space:nowrap; }
+    .table tbody tr:hover{ background:rgba(37,99,235,.02); }
+
+    .badge-soft{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:7px 10px; border-radius:999px; font-weight:800; font-size:12px;
+      color:rgba(15,23,42,.70); background:rgba(15,23,42,.03); border:1px solid rgba(15,23,42,.08);
+    }
+    .badge-soft::before{
+      content:""; width:7px; height:7px; border-radius:999px; background:var(--primary);
+      box-shadow:0 0 0 4px rgba(37,99,235,.10);
+    }
+
+    .doc-item{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:6px 10px;
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:12px;
+      background:#fff;
+      margin-bottom:6px;
+    }
+    .doc-item .name{ font-weight:600; color:rgba(15,23,42,.78); max-width:320px; }
+    .doc-item .btn{ padding:6px 10px; border-radius:10px; font-weight:700; }
+    .techno-name{
+      max-width:320px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      display:block;
+    }
+    .col-name{ width:24%; }
+    .col-docs{ width:38%; }
+    .col-actions{ width:320px; }
+    .docs-cell{ white-space:normal; }
+    .docs-cell .doc-item{ flex-wrap:wrap; }
+
+    /* ===== Collapse sidebar (desktop) ===== */
+    .app.collapsed .sidebar{ transform:translateX(-100%); opacity:0; pointer-events:none; }
+    .app.collapsed .main{ margin-left:0; }
+
+    /* ===== Mobile: overlay ===== */
+    @media (max-width: 992px){
+      .sidebar{ transform:translateX(-100%); opacity:0; pointer-events:none; }
+      .app.sidebar-open .sidebar{ transform:translateX(0); opacity:1; pointer-events:auto; }
+      .main{ margin-left:0; padding:18px 14px 24px; }
+    }
+  </style>
+</head>
+
+<body data-required-role="ADMIN">
+<div class="app" id="appRoot">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-left">
+        <img src="/static/img/cbi-logo.png" alt="CBI">
+        <span class="brand-dot"></span>
+      </div>
+      <button class="brand-menu" id="toggleSidebar" type="button" aria-label="Toggle sidebar">
+        <i class="bi bi-list fs-5"></i>
+      </button>
+    </div>
+
+    <!-- scrollable area for menu if it grows -->
+    <div class="side-scroll">
+      <div class="side-section">Menu principal</div>
+
+      <nav class="side-nav">
+        <a class="side-link active" href="/admin">
+          <i class="bi bi-file-earmark-text"></i> Gérer technologies
+        </a>
+        <a class="side-link" href="/admin/forms">
+          <i class="bi bi-ui-checks-grid"></i> Gérer formulaires
+        </a>
+        <a class="side-link" href="/admin/form-builder">
+          <i class="bi bi-layout-text-window-reverse"></i> Form Builder
+        </a>
+        <a class="side-link" href="/admin/ai-template-builder">
+          <i class="bi bi-magic"></i> AI Form/Template Builder
+        </a>
+          <a class="side-link" href="/admin/ai-template-builder/new"><i class="bi bi-stars"></i> AI Form Builder Rich</a>
+        <a class="side-link" href="/admin/users">
+          <i class="bi bi-people"></i> Gérer utilisateurs
+        </a>
+      </nav>
+    </div>
+
+    <div class="side-footer">
+      <a class="logout" href="/login" id="logoutBtn" data-logout>
+        <i class="bi bi-box-arrow-left"></i> Se déconnecter
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN (SCROLLS) -->
+  <main class="main">
+    <div class="container-max">
+
+      <div class="page-head">
+        <div>
+          <h1 class="title">Gestion des technologies</h1>
+          <div class="subtitle">Créer une techno + associer un template Word.</div>
+        </div>
+
+        <div class="head-actions">
+          <button class="btn btn-outline-secondary" id="toggleSidebarTop" type="button" title="Afficher/Masquer menu">
+            <i class="bi bi-layout-sidebar-inset"></i>
+          </button>
+
+          <button class="btn btn-outline-secondary" id="refreshBtn">
+            <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+          </button>
+
+          <div class="userchip">
+            <div class="avatar" id="userInitials">AD</div>
+            <div class="d-none d-md-block" style="line-height:1.12; min-width:0;">
+              <div class="fw-bold small text-truncate" id="userFullName">Admin</div>
+              <div class="small text-secondary text-truncate" id="userRole">ADMIN</div>
+            </div>
+            <span class="badge text-bg-success status">Online</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CREATE -->
+      <section class="cardx mb-3">
+        <div class="cardx-head">
+          <div class="d-flex align-items-center gap-3">
+            <div class="iconbox"><i class="bi bi-plus-circle"></i></div>
+            <div>
+              <div class="card-title">Créer une technologie</div>
+              <div class="card-hint">Informations + template Word</div>
+            </div>
+          </div>
+          <span class="badge-soft">Setup</span>
+        </div>
+
+        <div class="cardx-body">
+          <form id="technoForm">
+            <div class="create-grid">
+              <div>
+                <label class="form-label">Nom</label>
+                <input class="form-control" name="name" required placeholder="Ex: Campus LAN" />
+              </div>
+
+              <div>
+                <label class="form-label">Type de document</label>
+                <select class="form-select" name="doc_type">
+                  <option value="INGENIERIE">INGENIERIE</option>
+                  <option value="EXPLOITATION">EXPLOITATION</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="form-label">Template Word (.doc/.docx)</label>
+                <input class="form-control" type="file" name="file" accept=".doc,.docx" />
+              </div>
+
+              <div class="d-grid">
+                <button class="btn btn-primary" type="submit">
+                  <i class="bi bi-check2-circle me-1"></i> Enregistrer
+                </button>
+              </div>
+            </div>
+
+            <div class="mt-3">
+              <label class="form-label">Description (optionnel)</label>
+              <textarea class="form-control" name="description" rows="3" placeholder="Résumé / périmètre..."></textarea>
+            </div>
+
+            <div id="msg" class="text-danger small mt-2"></div>
+          </form>
+        </div>
+      </section>
+
+      <!-- FILTERS -->
+      <section class="cardx mb-3">
+        <div class="cardx-head">
+          <div class="d-flex align-items-center gap-3">
+            <div class="iconbox"><i class="bi bi-funnel"></i></div>
+            <div>
+              <div class="card-title">Filtres</div>
+              <div class="card-hint">Recherche • Type • actions rapides</div>
+            </div>
+          </div>
+
+          <button class="btn btn-outline-secondary" type="button" id="clearFiltersBtn">
+            <i class="bi bi-x-circle me-1"></i> Reset
+          </button>
+        </div>
+
+        <div class="cardx-body">
+          <div class="bar-grid">
+            <div>
+              <label class="form-label">Rechercher</label>
+              <div class="input-with-icon">
+                <i class="bi bi-search"></i>
+                <input id="q" class="form-control" placeholder="Rechercher une technologie..." />
+              </div>
+            </div>
+
+            <div>
+              <label class="form-label">Type de document</label>
+              <select id="typeFilter" class="form-select">
+                <option value="">Tous les types</option>
+                <option value="INGENIERIE">INGENIERIE</option>
+                <option value="EXPLOITATION">EXPLOITATION</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="form-label">Actions</label>
+              <select class="form-select" disabled>
+                <option>Liste dynamique</option>
+              </select>
+            </div>
+
+            <div class="d-grid">
+              <button class="btn btn-primary" type="button" onclick="applyFrontFilters()">
+                <i class="bi bi-funnel me-1"></i> Appliquer
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TABLE -->
+      <section class="cardx">
+        <div class="cardx-head">
+          <div class="d-flex align-items-center gap-3">
+            <div class="iconbox"><i class="bi bi-collection"></i></div>
+            <div>
+              <div class="card-title">Technologies</div>
+              <div class="card-hint">Formulaire → builder • Upload → ajouter un template</div>
+            </div>
+          </div>
+          <span class="badge-soft"><i class="bi bi-info-circle"></i> Liste dynamique</span>
+        </div>
+
+        <div class="cardx-body pt-2">
+          <div class="table-wrap">
+            <table class="table table-sm align-middle mb-0">
+              <thead>
+                <tr>
+                  <th style="width:80px">ID</th>
+                  <th class="col-name">Nom</th>
+                  <th style="width:170px">Type</th>
+                  <th class="col-docs">Docs</th>
+                  <th class="text-end col-actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<!-- Modal: Edit Techno -->
+<div class="modal fade" id="technoModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-md modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <h5 class="modal-title">Modifier la technologie</h5>
+          <div class="small text-secondary" id="technoModalSubtitle"></div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editTechnoId" />
+
+        <label class="form-label">Nom</label>
+        <input class="form-control mb-2" id="editTechnoName" placeholder="Nom de la technologie" />
+
+        <label class="form-label">Type</label>
+        <select class="form-select" id="editTechnoType">
+          <option value="INGENIERIE">INGENIERIE</option>
+          <option value="EXPLOITATION">EXPLOITATION</option>
+        </select>
+
+        <div class="text-danger small mt-2" id="technoModalMsg"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Annuler</button>
+        <button class="btn btn-primary" type="button" id="saveTechnoBtn">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const esc = s => String(s).replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;", "\"":"&quot;","'":"&#039;" }[m]));
+  function getParamInt(name){
+    const v = new URLSearchParams(window.location.search).get(name);
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  // user badge
+  (function(){
+    const fullName = localStorage.getItem("user_full_name") || "";
+    const email = localStorage.getItem("user_email") || "admin";
+    const role = localStorage.getItem("user_role") || "ADMIN";
+    document.getElementById("userFullName").textContent = fullName || email;
+    document.getElementById("userRole").textContent = role;
+    const initials = (fullName || email).split(/[\s.@_-]+/).filter(Boolean).slice(0,2).map(x=>x[0].toUpperCase()).join("");
+    document.getElementById("userInitials").textContent = initials || "AD";
+  })();
+
+  // forms link
+  (function(){
+    const link = document.getElementById("navFormsLink");
+    if(!link) return;
+    const technoId = getParamInt("techno_id");
+    link.href = technoId ? `/admin/forms?techno_id=${technoId}` : `/admin/forms`;
+  })();
+
+  // sidebar toggle
+  (function(){
+    const app = document.getElementById("appRoot");
+    const b1 = document.getElementById("toggleSidebar");
+    const b2 = document.getElementById("toggleSidebarTop");
+
+    const saved = localStorage.getItem("sidebar_state");
+    if(saved === "collapsed") app.classList.add("collapsed");
+
+    function toggle(){
+      if(window.innerWidth <= 992){
+        app.classList.toggle("sidebar-open");
+        return;
+      }
+      app.classList.toggle("collapsed");
+      localStorage.setItem("sidebar_state", app.classList.contains("collapsed") ? "collapsed" : "open");
+    }
+
+    b1?.addEventListener("click", toggle);
+    b2?.addEventListener("click", toggle);
+
+    window.addEventListener("resize", ()=>{
+      if(window.innerWidth > 992) app.classList.remove("sidebar-open");
+    });
+  })();
+
+  // filters
+  function applyFrontFilters(){
+    const q = (document.getElementById("q")?.value || "").trim().toLowerCase();
+    const type = (document.getElementById("typeFilter")?.value || "").trim();
+    const rows = document.querySelectorAll("#tbody tr[data-name]");
+    rows.forEach(r=>{
+      const name = (r.getAttribute("data-name") || "").toLowerCase();
+      const t = (r.getAttribute("data-type") || "");
+      const okQ = !q || name.includes(q);
+      const okT = !type || t === type;
+      r.style.display = (okQ && okT) ? "" : "none";
+    });
+  }
+  document.getElementById("q")?.addEventListener("input", applyFrontFilters);
+  document.getElementById("typeFilter")?.addEventListener("change", applyFrontFilters);
+
+  document.getElementById("clearFiltersBtn")?.addEventListener("click", ()=>{
+    const q = document.getElementById("q");
+    const type = document.getElementById("typeFilter");
+    if(q) q.value = "";
+    if(type) type.value = "";
+    applyFrontFilters();
+  });
+
+  // API
+  let technoCache = new Map();
+  const technoModal = new bootstrap.Modal(document.getElementById("technoModal"));
+
+  async function loadTechnos(){
+    const res = await fetch("/api/technos");
+    if(!res.ok){
+      document.getElementById("tbody").innerHTML =
+        `<tr><td colspan="5" class="text-danger">API /api/technos introuvable</td></tr>`;
+      return;
+    }
+    const data = await res.json();
+    const tbody = document.getElementById("tbody");
+    tbody.innerHTML = "";
+    technoCache = new Map();
+
+    if(!Array.isArray(data) || data.length===0){
+      tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">Aucune technologie.</td></tr>`;
+      return;
+    }
+
+    data.forEach(t=>{
+      technoCache.set(Number(t.id), t);
+      const docs = t.documents || [];
+      const docsHtml = docs.length
+        ? docs.map(d=>`
+            <div class="doc-item">
+              <span class="name text-truncate">
+                <i class="bi bi-file-earmark-word me-2 text-primary"></i>${esc(d.filename)}
+              </span>
+              <a class="btn btn-sm btn-outline-secondary" href="/api/technos/docs/${d.id}/download">
+                <i class="bi bi-download me-1"></i> Download
+              </a>
+            </div>
+          `).join("")
+        : `<span class="text-muted">Aucun</span>`;
+
+      tbody.innerHTML += `
+        <tr data-name="${esc(t.name)}" data-type="${esc(t.doc_type)}">
+          <td class="text-muted fw-bold">${t.id}</td>
+          <td class="fw-bold"><span class="techno-name">${esc(t.name)}</span></td>
+          <td><span class="badge-soft">${esc(t.doc_type)}</span></td>
+          <td class="docs-cell">${docsHtml}</td>
+          <td class="text-end">
+            <div class="d-inline-flex flex-wrap gap-2 justify-content-end">
+              <a class="btn btn-sm btn-primary" href="/admin/form-builder?techno_id=${t.id}">
+                <i class="bi bi-wrench-adjustable-circle me-1"></i> Formulaire
+              </a>
+              <a class="btn btn-sm btn-outline-secondary" href="/admin/technos/${t.id}">
+                <i class="bi bi-info-circle me-1"></i> Détails
+              </a>
+              <button class="btn btn-sm btn-outline-secondary js-edit-techno" type="button" data-techno-id="${t.id}">
+                <i class="bi bi-pencil me-1"></i> Modifier
+              </button>
+              <button class="btn btn-sm btn-outline-danger js-delete-techno" type="button" data-techno-id="${t.id}">
+                <i class="bi bi-trash me-1"></i> Supprimer
+              </button>
+              <label class="btn btn-sm btn-outline-secondary mb-0">
+                <i class="bi bi-upload me-1"></i> Upload
+                <input type="file" hidden accept=".doc,.docx" onchange="uploadDoc(${t.id}, this.files[0])" />
+              </label>
+            </div>
+          </td>
+        </tr>`;
+    });
+
+    applyFrontFilters();
+  }
+
+  document.getElementById("tbody").addEventListener("click", (event) => {
+    const editBtn = event.target.closest(".js-edit-techno");
+    if (editBtn) {
+      const technoId = Number(editBtn.dataset.technoId);
+      const techno = technoCache.get(technoId);
+      if (!techno) return;
+
+      document.getElementById("editTechnoId").value = technoId;
+      document.getElementById("editTechnoName").value = techno.name || "";
+      document.getElementById("editTechnoType").value = techno.doc_type || "INGENIERIE";
+      document.getElementById("technoModalMsg").textContent = "";
+      document.getElementById("technoModalSubtitle").textContent = `ID ${technoId}`;
+      technoModal.show();
+      return;
+    }
+
+    const deleteBtn = event.target.closest(".js-delete-techno");
+    if (deleteBtn) {
+      const technoId = Number(deleteBtn.dataset.technoId);
+      deleteTechno(technoId);
+    }
+  });
+
+  document.getElementById("saveTechnoBtn").addEventListener("click", async () => {
+    const technoId = Number(document.getElementById("editTechnoId").value);
+    const name = document.getElementById("editTechnoName").value.trim();
+    const doc_type = document.getElementById("editTechnoType").value;
+    const msg = document.getElementById("technoModalMsg");
+    msg.textContent = "";
+
+    if (!name) {
+      msg.textContent = "Le nom est obligatoire.";
+      return;
+    }
+
+    const res = await fetch(`/api/technos/${technoId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, doc_type }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      msg.textContent = data.detail || "Erreur mise à jour";
+      return;
+    }
+
+    technoModal.hide();
+    await loadTechnos();
+  });
+
+  async function deleteTechno(technoId){
+    if(!confirm("Supprimer cette technologie ? Cette action est irréversible.")) return;
+    const res = await fetch(`/api/technos/${technoId}`, { method: "DELETE" });
+    if(!res.ok){
+      const data = await res.json().catch(() => ({}));
+      alert(data.detail || "Erreur suppression");
+      return;
+    }
+    await loadTechnos();
+  }
+
+  async function uploadDoc(technoId, file){
+    if(!file) return;
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch(`/api/technos/${technoId}/upload`, { method:"POST", body: fd });
+    if(!res.ok){ alert("Upload failed"); return; }
+    await loadTechnos();
+  }
+
+  document.getElementById("refreshBtn").addEventListener("click", loadTechnos);
+
+  document.getElementById("technoForm").addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    const msg = document.getElementById("msg");
+    msg.textContent = "";
+    const fd = new FormData(e.target);
+
+    const res = await fetch("/api/technos", { method:"POST", body: fd });
+    if(!res.ok){
+      const err = await res.json().catch(()=>({detail:"Erreur"}));
+      msg.textContent = err.detail || "Erreur";
+      return;
+    }
+
+    e.target.reset();
+    await loadTechnos();
+  });
+
+  loadTechnos();
+</script>
+<script src="/static/js/logout.js"></script>
+<script src="/static/js/auth_guard.js"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+Average score for ("openai_writer.py - SYSTEM_PROMPT") : ERROR - Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-
+Average score for ("openai_writer.py - RICHNESS_BLOCK") : ERROR - Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-
+Average score for ("openai_writer.py - INTENT_RULES") : ERROR - Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-
+Average score for ("openai_writer.py - CONTRAINTE_STRUCTURE") : ERROR - Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-
+Average score for ("ai_form_builder_rich.py - SYSTEM_PROMPT") : ERROR - Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-
+Average score for ("hardware_generator.py - SYSTEM_PROMPT") : ERROR - Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-
+Average score for ("llm_analyzer.py - _section_prompt") : ERROR - Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-
+Average score for ("llm_analyzer.py - system_content") : ERROR - Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-
+Average score for ("ai_template_builder.py - SYSTEM_PROMPT_OUTLINE") : ERROR - Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-
+Average score for ("ai_template_builder.py - SYSTEM_PROMPT_QUESTIONS") : ERROR - Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-

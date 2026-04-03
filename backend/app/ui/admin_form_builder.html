@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>AI DocGen • Form Builder</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body{background:#f6f8fb}
+    .soft{border:1px solid rgba(16,24,40,.08);border-radius:18px;box-shadow:0 10px 25px rgba(16,24,40,.05)}
+    .tag{font-size:12px;background:#f1f5f9;border:1px solid rgba(16,24,40,.10);padding:.25rem .5rem;border-radius:999px}
+    .modal-wow .modal-content{border:0;border-radius:18px;overflow:hidden;box-shadow:0 25px 60px rgba(2,6,23,.18)}
+    .modal-wow .modal-header{background:#fff;border-bottom:1px solid rgba(16,24,40,.08)}
+    .modal-wow .modal-footer{background:#fff;border-top:1px solid rgba(16,24,40,.08)}
+    .pill{font-size:12px;background:#f8fafc;border:1px solid rgba(16,24,40,.10);padding:.25rem .55rem;border-radius:999px}
+  </style>
+</head>
+<body data-required-role="ADMIN">
+
+<nav class="navbar bg-white border-bottom">
+  <div class="container d-flex justify-content-between align-items-center">
+    <div class="fw-bold">AI DocGen • Form Builder</div>
+    <a class="btn btn-sm btn-outline-secondary" href="/admin">← Retour</a>
+  </div>
+</nav>
+
+<div class="container py-4">
+  <div class="row g-3">
+
+    <div class="col-lg-4">
+      <div class="card soft">
+        <div class="card-body">
+          <div class="fw-bold mb-1">Créer un formulaire</div>
+          <div class="text-secondary small mb-3">Choisis la techno & le document, puis “Créer”.</div>
+
+          <label class="form-label small fw-semibold">Technologie</label>
+          <select id="technoSelect" class="form-select mb-2"></select>
+
+          <label class="form-label small fw-semibold">Template Word</label>
+          <select id="docSelect" class="form-select mb-2"></select>
+
+          <label class="form-label small fw-semibold">Nom du formulaire</label>
+          <input id="formName" class="form-control mb-3" placeholder="Ex: Campus LAN - V1"/>
+
+          <button id="createBtn" class="btn btn-primary w-100 fw-bold">Créer le formulaire</button>
+
+          <div id="msg" class="small text-danger mt-2"></div>
+          <div id="ok" class="small text-success mt-2"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <div class="card soft">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="fw-bold">Titres / Sections</div>
+            <div class="text-secondary small">Ajouter des questions + Intent/Exemple par section</div>
+          </div>
+
+          <div id="sections" class="list-group">
+            <div class="list-group-item text-muted">Crée un formulaire pour afficher les sections.</div>
+          </div>
+
+          <button id="previewBtn" class="btn btn-outline-dark w-100 fw-bold mt-2" disabled>
+            👁 Voir le formulaire
+          </button>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal Question (WOW) -->
+<div class="modal fade modal-wow" id="qModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header px-4 py-3">
+        <div class="w-100">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <div class="fw-bold" style="font-size:20px;">Ajouter une question</div>
+
+              <div class="d-flex align-items-center gap-2 flex-wrap mt-2">
+                <span class="pill" id="qHLevel">H?</span>
+                <span class="fw-semibold" id="qSectionTitle">Titre section…</span>
+                <span class="pill" id="qSecKey">SEC_…</span>
+              </div>
+
+              <div class="small text-secondary mt-2">
+                Ajoute les infos nécessaires pour que l’IA génère un paragraphe précis pour cette section.
+              </div>
+            </div>
+
+            <button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-body px-4 py-3">
+        <input type="hidden" id="sectionId"/>
+
+        <label class="form-label fw-semibold">Question</label>
+        <input id="qLabel" class="form-control form-control-lg mb-2" placeholder="Ex: Quel est le périmètre ?"/>
+
+        <div class="row g-2">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Type</label>
+            <select id="qType" class="form-select">
+              <option value="text">Texte (input)</option>
+              <option value="single_choice">Choix unique</option>
+              <option value="multi_choice">Choix multiple</option>
+              <option value="module_hardware_cisco">Module: Hardware Cisco</option>
+            </select>
+          </div>
+          <div class="col-md-6 d-flex align-items-end">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="qRequired" checked>
+              <label class="form-check-label fw-semibold" for="qRequired">Obligatoire</label>
+            </div>
+          </div>
+        </div>
+
+        <label id="qHelpLabel" class="form-label fw-semibold mt-2">Aide (optionnel)</label>
+        <textarea id="qHelp" class="form-control" rows="2" placeholder="Ex: Donne le scope (sites, bâtiments, zones...)"></textarea>
+
+        <div id="optBox" class="mt-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="fw-semibold">Options</div>
+            <button class="btn btn-sm btn-outline-secondary" type="button" id="addOptBtn">+ Option</button>
+          </div>
+          <div id="opts" class="mt-2"></div>
+          <div class="text-secondary small mt-1">Options requises pour “choix unique/multiple”.</div>
+        </div>
+
+        <div id="qMsg" class="small text-danger mt-2"></div>
+      </div>
+
+      <div class="modal-footer px-4 py-3">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button class="btn btn-primary fw-bold" id="saveQBtn">Enregistrer</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ✅ NEW: Modal Editorial (Intent/Exemple) -->
+<div class="modal fade modal-wow" id="eModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header px-4 py-3">
+        <div class="w-100 d-flex justify-content-between align-items-start">
+          <div>
+            <div class="fw-bold" style="font-size:20px;">Intent & Exemple</div>
+            <div class="small text-secondary mt-1" id="eTitle">Section…</div>
+            <div class="small text-secondary">
+              Intent = visible utilisateur (aide). Exemple = admin only (style), jamais des faits.
+            </div>
+          </div>
+          <button class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+      </div>
+
+      <div class="modal-body px-4 py-3">
+        <input type="hidden" id="eSectionId"/>
+
+        <label class="form-label fw-semibold">Utilité / Intent (visible user)</label>
+        <textarea id="eIntent" class="form-control" rows="3"
+          placeholder="Ex: Décrire l’objectif du dossier, le périmètre, et la valeur attendue pour le client."></textarea>
+
+        <label class="form-label fw-semibold mt-3">Exemple (admin only, court)</label>
+        <textarea id="eExample" class="form-control" rows="4"
+          placeholder="Ex: Le présent dossier d’ingénierie a pour objectif de définir... (sans faits non fournis)"></textarea>
+
+        <div class="small text-secondary mt-2">
+          ⚠️ L’exemple sert uniquement de style/structure. Il ne doit pas être copié, ni contenir des faits “réels”.
+        </div>
+
+        <div id="eMsg" class="small text-danger mt-2"></div>
+      </div>
+
+      <div class="modal-footer px-4 py-3">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button class="btn btn-primary fw-bold" id="saveEBtn">Enregistrer</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const esc = s => String(s).replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;" }[m]));
+ let currentFormId = null;
+
+// ✅ if open existing form
+const qs = new URLSearchParams(location.search);
+const existingFormId = qs.get("form_id");
+const preselectedTechnoId = qs.get("techno_id");
+
+if(existingFormId){
+  currentFormId = Number(existingFormId);
+  document.getElementById("previewBtn").disabled = false;
+  document.getElementById("previewBtn").onclick = () => location.href = `/admin/forms/preview?form_id=${currentFormId}`;
+  renderSections(); // load sections directly
+}
+
+
+  async function loadTechnos(){
+    const r = await fetch("/api/technos");
+    if(!r.ok){ document.getElementById("msg").textContent = "API /api/technos introuvable"; return; }
+    const technos = await r.json();
+
+    const tSel = document.getElementById("technoSelect");
+    tSel.innerHTML = technos.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join("");
+
+    tSel.addEventListener("change", () => fillDocs(technos));
+    fillDocs(technos);
+  }
+
+  function fillDocs(technos){
+    const tId = document.getElementById("technoSelect").value;
+    const techno = technos.find(x => String(x.id) === String(tId));
+    const docs = (techno?.documents || []);
+    const dSel = document.getElementById("docSelect");
+
+    if(!docs.length){
+      dSel.innerHTML = `<option value="">Aucun document</option>`;
+      return;
+    }
+    dSel.innerHTML = docs.map(d => `<option value="${d.id}">${esc(d.filename)}</option>`).join("");
+  }
+
+  async function createForm(){
+    document.getElementById("msg").textContent = "";
+    document.getElementById("ok").textContent = "";
+
+    const techno_id = Number(document.getElementById("technoSelect").value);
+    const doc_id = Number(document.getElementById("docSelect").value);
+    const name = document.getElementById("formName").value.trim() || "Formulaire";
+
+    if(!doc_id){ document.getElementById("msg").textContent="Choisis un document"; return; }
+
+    const payload = {
+      techno_id, doc_id, name,
+      created_by: localStorage.getItem("user_full_name") || localStorage.getItem("user_email") || ""
+    };
+
+    const r = await fetch("/api/forms", {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await r.json().catch(()=>({}));
+
+    if(!r.ok){ document.getElementById("msg").textContent = data.detail || "Erreur création"; return; }
+
+    currentFormId = data.form_id;
+
+    // ✅ preview bouton (après currentFormId défini)
+    document.getElementById("previewBtn").disabled = false;
+    document.getElementById("previewBtn").onclick = () => location.href = `/admin/forms/preview?form_id=${currentFormId}`;
+
+    document.getElementById("ok").textContent = `Form créé. Sections: ${data.sections_created}`;
+    await renderSections();
+  }
+
+  async function renderSections(){
+    const box = document.getElementById("sections");
+    box.innerHTML = `<div class="list-group-item text-muted">Chargement...</div>`;
+
+    const r = await fetch(`/api/forms/${currentFormId}/sections`);
+    if(!r.ok){ box.innerHTML = `<div class="list-group-item text-danger">Erreur sections</div>`; return; }
+    const sections = await r.json();
+
+    if(!sections.length){
+      box.innerHTML = `<div class="list-group-item text-muted">Aucune section détectée (check titres Word + [[SEC_x]]).</div>`;
+      return;
+    }
+
+    box.innerHTML = sections.map(s => `
+      <div class="list-group-item d-flex justify-content-between align-items-center">
+        <div class="me-3" style="min-width:0;">
+          <span class="tag me-2">H${s.level}</span>
+          <span class="fw-semibold">${esc(s.title)}</span>
+          <span class="text-secondary small ms-2">(${esc(s.sec_key)})</span>
+
+          ${s.section_intent ? `<div class="small text-secondary mt-1"><b>Intent:</b> ${esc(s.section_intent)}</div>` : ``}
+          ${s.section_example ? `<div class="small text-secondary"><b>Example:</b> ${esc(s.section_example)}</div>` : ``}
+          ${s.status === "FAILED" ? `<div class="small text-danger mt-1"><span class="badge bg-danger">FAILED</span> ${esc(s.error_message || "Erreur génération")}</div>` : ``}
+          ${(s.questions || []).length ? `<ul class="small mt-2 mb-0">${s.questions.map(q => `<li>${esc(q.label)} <span class="text-secondary">(${esc(q.qtype)})</span></li>`).join("")}</ul>` : ``}
+        </div>
+
+        <div class="d-inline-flex gap-2">
+          <!-- ✅ NEW: Intent/Exemple -->
+          <button
+            class="btn btn-sm btn-outline-secondary"
+            data-section-id="${s.id}"
+            data-title="${esc(s.title)}"
+            data-intent="${esc(s.section_intent || "")}"
+            data-example="${esc(s.section_example || "")}"
+            onclick="openEditorialModal(this)">
+            ✎ Intent/Exemple
+          </button>
+
+          <!-- existing -->
+          <button
+            class="btn btn-sm btn-outline-primary"
+            data-section-id="${s.id}"
+            data-title="${esc(s.title)}"
+            data-level="${s.level}"
+            data-sec="${esc(s.sec_key)}"
+            onclick="openQModal(this)">
+            + Question
+          </button>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  // ------------------------
+  // Modal Question
+  // ------------------------
+  const qModal = new bootstrap.Modal(document.getElementById("qModal"));
+
+  window.openQModal = (btn) => {
+    const sectionId = Number(btn.dataset.sectionId);
+    const title = btn.dataset.title || "";
+    const level = btn.dataset.level || "?";
+    const sec = btn.dataset.sec || "—";
+
+    document.getElementById("sectionId").value = sectionId;
+    document.getElementById("qHLevel").textContent = "H" + level;
+    document.getElementById("qSectionTitle").textContent = title;
+    document.getElementById("qSecKey").textContent = sec;
+
+    document.getElementById("qLabel").value = "";
+    document.getElementById("qHelp").value = "";
+    document.getElementById("qRequired").checked = true;
+    document.getElementById("qType").value = "text";
+    document.getElementById("qMsg").textContent = "";
+    document.getElementById("opts").innerHTML = "";
+
+    toggleOptBox();
+    qModal.show();
+  };
+
+  function toggleOptBox(){
+    const t = document.getElementById("qType").value;
+    const isChoice = (t === "single_choice" || t === "multi_choice");
+    const isHardwareModule = t === "module_hardware_cisco";
+    document.getElementById("optBox").style.display = isChoice ? "block" : "none";
+    document.getElementById("qHelpLabel").style.display = isHardwareModule ? "none" : "";
+    document.getElementById("qHelp").style.display = isHardwareModule ? "none" : "";
+    if(isHardwareModule && !document.getElementById("qLabel").value.trim()){
+      document.getElementById("qLabel").value = "Hardware Cisco";
+    }
+    if(!isChoice) document.getElementById("opts").innerHTML = "";
+  }
+  document.getElementById("qType").addEventListener("change", toggleOptBox);
+
+  function addOptRow(value=""){
+    const opts = document.getElementById("opts");
+    const id = "opt_" + Math.random().toString(16).slice(2);
+    opts.insertAdjacentHTML("beforeend", `
+      <div class="input-group mb-2" id="${id}">
+        <input class="form-control optLabel" placeholder="Option..." value="${esc(value)}" data-opt="1">
+        <button class="btn btn-outline-danger" type="button" onclick="document.getElementById('${id}').remove()">✕</button>
+      </div>
+    `);
+  }
+  document.getElementById("addOptBtn").addEventListener("click", () => addOptRow());
+
+  document.getElementById("saveQBtn").addEventListener("click", async () => {
+    const sectionId = Number(document.getElementById("sectionId").value);
+    const label = document.getElementById("qLabel").value.trim();
+    const qtype = document.getElementById("qType").value;
+    const is_required = document.getElementById("qRequired").checked;
+    const help_text = document.getElementById("qHelp").value.trim() || null;
+
+    if(!label){ document.getElementById("qMsg").textContent = "Question obligatoire"; return; }
+
+    let options = [];
+    if(qtype === "single_choice" || qtype === "multi_choice"){
+      options = Array.from(document.querySelectorAll(".optLabel[data-opt]"))
+        .map(i => ({ label: i.value.trim() }))
+        .filter(o => o.label);
+
+      if(!options.length){
+        document.getElementById("qMsg").textContent = "Ajoute au moins une option";
+        return;
+      }
+    }
+
+    const payload = {
+      label: qtype === "module_hardware_cisco" ? (label || "Hardware Cisco") : label,
+      qtype,
+      is_required,
+      help_text: qtype === "module_hardware_cisco" ? null : help_text,
+      options,
+    };
+
+    const r = await fetch(`/api/forms/sections/${sectionId}/questions`, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await r.json().catch(()=>({}));
+
+    if(!r.ok){ document.getElementById("qMsg").textContent = data.detail || "Erreur"; return; }
+
+    qModal.hide();
+    alert("Question ajoutée ✅");
+  });
+
+  // ------------------------
+  // ✅ Modal Editorial (Intent/Exemple)
+  // ------------------------
+  const eModal = new bootstrap.Modal(document.getElementById("eModal"));
+
+  window.openEditorialModal = (btn) => {
+    document.getElementById("eSectionId").value = btn.dataset.sectionId;
+    document.getElementById("eTitle").textContent = btn.dataset.title || "";
+    document.getElementById("eIntent").value = btn.dataset.intent || "";
+    document.getElementById("eExample").value = btn.dataset.example || "";
+    document.getElementById("eMsg").textContent = "";
+    eModal.show();
+  };
+
+  document.getElementById("saveEBtn").addEventListener("click", async () => {
+    const section_id = Number(document.getElementById("eSectionId").value);
+    const section_intent = document.getElementById("eIntent").value.trim();
+    const section_example = document.getElementById("eExample").value.trim();
+
+    // optionnel: limiter exemple pour éviter tokens
+    if(section_example && section_example.length > 1200){
+      document.getElementById("eMsg").textContent = "Exemple trop long (max 1200 caractères).";
+      return;
+    }
+
+    const r = await fetch(`/api/forms/sections/${section_id}/editorial`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ section_intent, section_example })
+    });
+
+    const data = await r.json().catch(()=>({}));
+    if(!r.ok){
+      document.getElementById("eMsg").textContent = data.detail || "Erreur update editorial";
+      return;
+    }
+
+    eModal.hide();
+    await renderSections();
+    alert("Intent/Exemple enregistré ✅");
+  });
+
+  // init
+  document.getElementById("createBtn").addEventListener("click", createForm);
+  loadTechnos();
+</script>
+<script src="/static/js/logout.js"></script>
+<script src="/static/js/auth_guard.js"></script>
+
+</body>
+</html>

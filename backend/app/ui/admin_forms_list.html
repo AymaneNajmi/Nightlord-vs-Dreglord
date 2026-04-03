@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AI DocGen • Formulaires</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#f5f7fb; --card:#fff; --text:#0f172a; --muted:rgba(15,23,42,.62); --stroke:rgba(15,23,42,.10);
+      --primary:#2563eb; --primary-600:#1d4ed8; --primary-soft:rgba(37,99,235,.10);
+      --side-w:300px; --side-bg:#0c1220; --side-bg2:#0a1020; --side-text:rgba(255,255,255,.78);
+      --r-xl:20px; --shadow:0 12px 34px rgba(2,6,23,.08); --shadow2:0 10px 26px rgba(2,6,23,.06);
+    }
+
+    html, body { height:100%; width:100%; }
+    body{
+      margin:0; background:var(--bg); color:var(--text);
+      font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+      font-size:14px; line-height:1.5;
+      overflow:hidden; /* IMPORTANT: page doesn't scroll */
+    }
+    *{ box-sizing:border-box; }
+
+    .app{ position:relative; height:100vh; width:100%; }
+
+    /* ===== SIDEBAR FIXED ===== */
+    .sidebar{
+      position:fixed; top:0; left:0; bottom:0;
+      width:var(--side-w);
+      background:linear-gradient(180deg,var(--side-bg) 0%,var(--side-bg2) 100%);
+      border-right:1px solid rgba(255,255,255,.06);
+      padding:18px 16px;
+      display:flex; flex-direction:column;
+      overflow:hidden;
+      transition: transform .28s ease, opacity .2s ease;
+      z-index:1000;
+    }
+    .sidebar .side-scroll{ overflow:auto; padding-right:4px; }
+    .sidebar .side-scroll::-webkit-scrollbar{ width:10px; }
+    .sidebar .side-scroll::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.12); border-radius:999px; }
+    .sidebar .side-scroll::-webkit-scrollbar-track{ background:transparent; }
+
+    .brand{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:14px; border-radius:var(--r-xl);
+      background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
+      margin-bottom:14px; flex:0 0 auto;
+    }
+    .brand-left{ display:flex; align-items:center; gap:10px; min-width:0; }
+    .brand img{ height:28px; width:auto; opacity:.98; }
+    .brand-dot{ width:9px; height:9px; border-radius:999px; background:#ef4444; box-shadow:0 0 0 5px rgba(239,68,68,.12); }
+    .brand-menu{
+      width:40px; height:40px; border-radius:14px;
+      display:grid; place-items:center;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.10);
+      color:rgba(255,255,255,.82);
+      cursor:pointer; flex:0 0 auto;
+    }
+
+    .side-section{
+      margin-top:8px; padding:0 6px 10px;
+      font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,.50);
+    }
+    .side-nav{ display:flex; flex-direction:column; gap:10px; padding:0 4px; }
+    .side-link{
+      display:flex; align-items:center; gap:12px; padding:14px; border-radius:16px;
+      color:var(--side-text); font-weight:700; border:1px solid transparent; text-decoration:none;
+      min-width:0;
+    }
+    .side-link:hover{ color:#fff; background:rgba(255,255,255,.05); border-color:rgba(255,255,255,.08); }
+    .side-link.active{ color:#fff; background:rgba(255,255,255,.09); border-color:rgba(255,255,255,.10); box-shadow:0 12px 26px rgba(0,0,0,.18); }
+
+    .side-footer{ margin-top:auto; padding-top:14px; flex:0 0 auto; }
+    .logout{
+      display:flex; align-items:center; gap:10px; padding:14px; border-radius:16px;
+      color:rgba(252,165,165,.95); font-weight:800;
+      border:1px solid rgba(252,165,165,.22); background:rgba(239,68,68,.06);
+      text-decoration:none;
+    }
+    .logout:hover{ background:rgba(239,68,68,.10); color:#fecaca; }
+
+    /* ===== MAIN SCROLL AREA ===== */
+    .main{
+      margin-left:var(--side-w);
+      height:100vh;
+      overflow:auto; /* IMPORTANT: main scrolls */
+      padding:28px 30px 40px;
+    }
+    .main::-webkit-scrollbar{ width:10px; }
+    .main::-webkit-scrollbar-thumb{ background:rgba(15,23,42,.14); border-radius:999px; }
+    .main::-webkit-scrollbar-track{ background:transparent; }
+
+    .container-max{ max-width:1200px; margin:0 auto; }
+
+    .page-head{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:16px;
+      margin-bottom:18px; flex-wrap:wrap;
+    }
+    .title{ font-size:26px; font-weight:800; letter-spacing:-.3px; margin:0; }
+    .subtitle{ margin-top:6px; color:var(--muted); font-size:14px; }
+
+    .head-actions{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; justify-content:flex-end; }
+
+    .btn{ border-radius:14px; font-weight:700; padding:10px 14px; white-space:nowrap; }
+    .btn-outline-secondary{
+      border-color:rgba(15,23,42,.14); color:rgba(15,23,42,.70); background:#fff; box-shadow:var(--shadow2);
+    }
+    .btn-outline-secondary:hover{ background:rgba(15,23,42,.03); border-color:rgba(15,23,42,.18); color:rgba(15,23,42,.82); }
+    .btn-primary{ background:var(--primary); border-color:var(--primary); box-shadow:0 12px 28px rgba(37,99,235,.18); }
+    .btn-primary:hover{ background:var(--primary-600); border-color:var(--primary-600); }
+
+    .userchip{
+      display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:999px;
+      border:1px solid var(--stroke); background:#fff; box-shadow:var(--shadow2);
+      white-space:nowrap; max-width:100%;
+    }
+    .avatar{
+      width:36px; height:36px; border-radius:999px; display:grid; place-items:center;
+      background:var(--primary); color:#fff; font-weight:900;
+    }
+    .status{ border-radius:999px; font-weight:800; padding:6px 10px; }
+
+    /* Cards */
+    .cardx{ background:var(--card); border:1px solid var(--stroke); border-radius:var(--r-xl); box-shadow:var(--shadow); overflow:hidden; }
+    .cardx-head{
+      padding:18px 20px; display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+      border-bottom:1px solid rgba(15,23,42,.06);
+      flex-wrap:wrap;
+    }
+    .cardx-body{ padding:18px 20px 20px; }
+
+    .card-title{ display:flex; align-items:center; gap:10px; font-weight:800; font-size:20px; margin:0; }
+    .card-hint{ margin-top:4px; color:var(--muted); font-size:13px; }
+
+    .iconbox{
+      width:44px; height:44px; border-radius:14px; display:grid; place-items:center;
+      background:var(--primary-soft); border:1px solid rgba(37,99,235,.14); color:var(--primary);
+      flex:0 0 auto;
+    }
+
+    .form-label{ font-size:12px; font-weight:700; color:rgba(15,23,42,.75); margin-bottom:8px; }
+    .form-control,.form-select{
+      border-radius:14px; border:1px solid rgba(15,23,42,.12); padding:11px 12px; font-size:14px; background:#fff;
+      width:100%; min-width:0;
+    }
+    .form-control:focus,.form-select:focus{
+      border-color:rgba(37,99,235,.30); box-shadow:0 0 0 .22rem rgba(37,99,235,.10);
+    }
+
+    .selector-grid{
+      display:grid;
+      grid-template-columns: 1.2fr auto;
+      gap:12px;
+      align-items:end;
+      max-width:720px;
+    }
+    @media (max-width: 992px){
+      .selector-grid{ grid-template-columns:1fr; max-width:100%; }
+    }
+
+    /* Table */
+    .table-wrap{
+      max-height:560px;
+      overflow:auto;
+      border-radius:16px;
+      overflow-x:auto;
+    }
+    .table{ min-width:980px; }
+    .table thead th{
+      position:sticky; top:0; background:#fff; z-index:2;
+      font-size:12px; letter-spacing:.10em; text-transform:uppercase;
+      color:rgba(15,23,42,.55);
+      border-bottom:1px solid rgba(15,23,42,.08) !important;
+      padding:14px 12px;
+      white-space:nowrap;
+    }
+    .table tbody td{ border-top:1px solid rgba(15,23,42,.06) !important; padding:12px 12px; white-space:nowrap; }
+    .table tbody tr:hover{ background:rgba(37,99,235,.02); }
+
+    /* ===== Collapse sidebar (desktop) ===== */
+    .app.collapsed .sidebar{ transform:translateX(-100%); opacity:0; pointer-events:none; }
+    .app.collapsed .main{ margin-left:0; }
+
+    /* ===== Mobile: overlay ===== */
+    @media (max-width: 992px){
+      .sidebar{ transform:translateX(-100%); opacity:0; pointer-events:none; }
+      .app.sidebar-open .sidebar{ transform:translateX(0); opacity:1; pointer-events:auto; }
+      .main{ margin-left:0; padding:18px 14px 24px; }
+    }
+
+    .hint-warning{
+      border-radius:16px; border:1px solid rgba(245,158,11,.22);
+      background:rgba(245,158,11,.10);
+      color:rgba(120,53,15,.95);
+      padding:12px 14px;
+      font-weight:700;
+    }
+  </style>
+</head>
+
+<body data-required-role="ADMIN">
+<div class="app" id="appRoot">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-left">
+        <img src="/static/img/cbi-logo.png" alt="CBI">
+        <span class="brand-dot"></span>
+      </div>
+      <button class="brand-menu" id="toggleSidebar" type="button" aria-label="Toggle sidebar">
+        <i class="bi bi-list fs-5"></i>
+      </button>
+    </div>
+
+    <div class="side-scroll">
+      <div class="side-section">Menu principal</div>
+
+      <nav class="side-nav">
+        <a class="side-link" href="/admin">
+          <i class="bi bi-file-earmark-text"></i> Gérer technologies
+        </a>
+        <a class="side-link active" href="/admin/forms" id="navFormsLink">
+          <i class="bi bi-ui-checks-grid"></i> Gérer formulaires
+        </a>
+        <a class="side-link" href="/admin/form-builder">
+          <i class="bi bi-layout-text-window-reverse"></i> Form Builder
+        </a>
+        <a class="side-link" href="/admin/ai-template-builder">
+          <i class="bi bi-magic"></i> AI Form/Template Builder
+        </a>
+          <a class="side-link" href="/admin/ai-template-builder/new"><i class="bi bi-stars"></i> AI Form Builder Rich</a>
+        <a class="side-link" href="/admin/users">
+          <i class="bi bi-people"></i> Gérer utilisateurs
+        </a>
+      </nav>
+    </div>
+
+    <div class="side-footer">
+      <a class="logout" href="/login" id="logoutBtn">
+        <i class="bi bi-box-arrow-left"></i> Se déconnecter
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="container-max">
+
+      <div class="page-head">
+        <div>
+          <h1 class="title">Formulaires</h1>
+          <div class="subtitle">Versioning activé (V1, V2, V3...).</div>
+        </div>
+
+        <div class="head-actions">
+          <button class="btn btn-outline-secondary" id="toggleSidebarTop" type="button" title="Afficher/Masquer menu">
+            <i class="bi bi-layout-sidebar-inset"></i>
+          </button>
+
+          <button class="btn btn-outline-secondary" id="refreshBtn" type="button">
+            <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+          </button>
+
+          <button class="btn btn-primary" id="btnNewV1" type="button">
+            <i class="bi bi-plus-circle me-1"></i> Nouveau (V1)
+          </button>
+
+          <div class="userchip">
+            <div class="avatar" id="userInitials">AD</div>
+            <div class="d-none d-md-block" style="line-height:1.12; min-width:0;">
+              <div class="fw-bold small text-truncate" id="userFullName">Admin</div>
+              <div class="small text-secondary text-truncate" id="userRole">ADMIN</div>
+            </div>
+            <span class="badge text-bg-success status">Online</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TECH SELECTOR -->
+      <section class="cardx mb-3">
+        <div class="cardx-head">
+          <div class="d-flex align-items-center gap-3">
+            <div class="iconbox"><i class="bi bi-diagram-3"></i></div>
+            <div>
+              <div class="card-title" id="titleTechno">Formulaires • Techno</div>
+              <div class="card-hint">Astuce : “Cloner” crée V+1 en copiant sections/questions/options.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cardx-body">
+          <div class="selector-grid">
+            <div>
+              <label class="form-label">Choisir une techno</label>
+              <select id="technoSelect" class="form-select">
+                <option value="">Chargement...</option>
+              </select>
+              <div class="small text-danger mt-1" id="technoErr"></div>
+            </div>
+            <div class="d-grid">
+              <button class="btn btn-outline-secondary" id="goBtn" type="button">
+                <i class="bi bi-box-arrow-in-right me-1"></i> Ouvrir
+              </button>
+            </div>
+          </div>
+
+          <div id="hint" class="hint-warning d-none mt-3">
+            Sélectionne une techno pour afficher ses formulaires.
+          </div>
+        </div>
+      </section>
+
+      <!-- TABLE -->
+      <section class="cardx">
+        <div class="cardx-head">
+          <div class="d-flex align-items-center gap-3">
+            <div class="iconbox"><i class="bi bi-ui-checks-grid"></i></div>
+            <div>
+              <div class="card-title">Liste des formulaires</div>
+              <div class="card-hint">Ouvrir → builder • Cloner → V+1</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cardx-body pt-2">
+          <div class="table-wrap">
+            <table class="table table-sm align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Nom</th>
+                  <th style="width:120px">Version</th>
+                  <th style="width:120px">Actif</th>
+                  <th>Doc</th>
+          <th class="text-end" style="width:320px">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+
+          <div id="apiErr" class="text-danger small mt-2"></div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, m => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"
+  }[m]));
+
+  function getTechnoId(){
+    const v = new URLSearchParams(window.location.search).get("techno_id");
+    const n = Number(v);
+    return Number.isInteger(n) && n > 0 ? n : null;
+  }
+
+  function setQueryTechno(id){
+    const url = new URL(window.location.href);
+    if(!id) url.searchParams.delete("techno_id");
+    else url.searchParams.set("techno_id", String(id));
+    window.location.href = url.toString();
+  }
+
+  // user badge
+  (function(){
+    const fullName = localStorage.getItem("user_full_name") || "";
+    const email = localStorage.getItem("user_email") || "admin";
+    const role = localStorage.getItem("user_role") || "ADMIN";
+    document.getElementById("userFullName").textContent = fullName || email;
+    document.getElementById("userRole").textContent = role;
+    const initials = (fullName || email).split(/[\s.@_-]+/).filter(Boolean).slice(0,2).map(x=>x[0].toUpperCase()).join("");
+    document.getElementById("userInitials").textContent = initials || "AD";
+  })();
+
+  // sidebar toggle (same behavior as admin)
+  (function(){
+    const app = document.getElementById("appRoot");
+    const b1 = document.getElementById("toggleSidebar");
+    const b2 = document.getElementById("toggleSidebarTop");
+
+    const saved = localStorage.getItem("sidebar_state");
+    if(saved === "collapsed") app.classList.add("collapsed");
+
+    function toggle(){
+      if(window.innerWidth <= 992){
+        app.classList.toggle("sidebar-open");
+        return;
+      }
+      app.classList.toggle("collapsed");
+      localStorage.setItem("sidebar_state", app.classList.contains("collapsed") ? "collapsed" : "open");
+    }
+
+    b1?.addEventListener("click", toggle);
+    b2?.addEventListener("click", toggle);
+
+    window.addEventListener("resize", ()=>{
+      if(window.innerWidth > 992) app.classList.remove("sidebar-open");
+    });
+  })();
+
+  // keep forms link with current techno_id if present
+  (function(){
+    const link = document.getElementById("navFormsLink");
+    if(!link) return;
+    const technoId = getTechnoId();
+    link.href = technoId ? `/admin/forms?techno_id=${technoId}` : `/admin/forms`;
+  })();
+
+  const technoSelect = document.getElementById("technoSelect");
+  const technoErr = document.getElementById("technoErr");
+  const tbody = document.getElementById("tbody");
+  const apiErr = document.getElementById("apiErr");
+  const hint = document.getElementById("hint");
+  const titleTechno = document.getElementById("titleTechno");
+
+  let technoId = getTechnoId();
+
+  async function loadTechnos(){
+    technoErr.textContent = "";
+    technoSelect.innerHTML = `<option value="">Chargement...</option>`;
+
+    const res = await fetch("/api/technos");
+    if(!res.ok){
+      technoSelect.innerHTML = `<option value="">Erreur chargement</option>`;
+      technoErr.textContent = "Impossible de charger /api/technos";
+      return [];
+    }
+
+    const data = await res.json();
+    const technos = Array.isArray(data) ? data : [];
+    technoSelect.innerHTML = `<option value="">— Choisir —</option>` + technos.map(t =>
+      `<option value="${t.id}">${esc(t.name)} (ID ${t.id})</option>`
+    ).join("");
+
+    if(technoId){
+      technoSelect.value = String(technoId);
+      const t = technos.find(x => x.id === technoId);
+      titleTechno.textContent = t ? `Formulaires • ${t.name} (Techno #${technoId})` : `Formulaires • Techno #${technoId}`;
+    } else {
+      titleTechno.textContent = "Formulaires • Techno (non sélectionnée)";
+    }
+
+    return technos;
+  }
+
+  async function loadForms(){
+    apiErr.textContent = "";
+    tbody.innerHTML = "";
+    technoId = getTechnoId();
+
+    if(!technoId){
+      hint.classList.remove("d-none");
+      tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">Sélectionne une techno.</td></tr>`;
+      return;
+    }
+
+    hint.classList.add("d-none");
+
+    const res = await fetch(`/api/forms/by-techno/${technoId}`);
+    if(!res.ok){
+      const txt = await res.text().catch(()=> "");
+      apiErr.textContent = `Erreur API /api/forms/by-techno/${technoId} (${res.status}) ${txt}`;
+      tbody.innerHTML = `<tr><td colspan="5" class="text-danger">Erreur API</td></tr>`;
+      return;
+    }
+
+    const data = await res.json();
+    const forms = Array.isArray(data) ? data : (data.items || []);
+
+    if(!forms || forms.length === 0){
+      tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">Aucun formulaire pour cette techno.</td></tr>`;
+      return;
+    }
+
+    forms.forEach(f=>{
+      const docName = f.doc_filename || f.doc?.filename || f.doc?.name || "-";
+      tbody.innerHTML += `
+        <tr>
+          <td class="fw-bold">${esc(f.name)}</td>
+          <td class="fw-semibold">V${esc(f.version)}</td>
+          <td>
+            ${f.is_active
+              ? `<span class="badge text-bg-success">Oui</span>`
+              : `<span class="badge text-bg-secondary">Non</span>`
+            }
+          </td>
+          <td class="text-truncate" style="max-width:520px">${esc(docName)}</td>
+          <td class="text-end">
+            <div class="d-inline-flex flex-wrap gap-2 justify-content-end">
+              <a class="btn btn-sm btn-outline-secondary" href="/admin/form-builder?form_id=${f.id}">
+                <i class="bi bi-box-arrow-up-right me-1"></i> Ouvrir
+              </a>
+              <button class="btn btn-sm btn-outline-secondary" type="button" onclick="cloneForm(${f.id})">
+                <i class="bi bi-files me-1"></i> Cloner
+              </button>
+              <button class="btn btn-sm btn-outline-danger" type="button"
+                      onclick='deleteForm(${f.id}, ${f.is_active ? "true" : "false"}, ${JSON.stringify(f.name)}, ${JSON.stringify(f.version)})'>
+                <i class="bi bi-trash me-1"></i> Supprimer
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    });
+  }
+
+  document.getElementById("goBtn").addEventListener("click", ()=>{
+    const v = technoSelect.value ? Number(technoSelect.value) : null;
+    if(!v){ setQueryTechno(null); return; }
+    setQueryTechno(v);
+  });
+
+  technoSelect.addEventListener("change", ()=>{
+    const v = technoSelect.value ? Number(technoSelect.value) : null;
+    if(v) setQueryTechno(v);
+  });
+
+  document.getElementById("refreshBtn").addEventListener("click", loadForms);
+
+  document.getElementById("btnNewV1").addEventListener("click", async ()=>{
+    technoId = getTechnoId();
+    if(!technoId){
+      alert("Choisis une techno d’abord.");
+      return;
+    }
+
+    // ⚠️ adapte si ton backend attend autre chose (ex: doc_id obligatoire)
+    const payload = { techno_id: technoId, name: "Formulaire", version: 1 };
+
+    const res = await fetch("/api/forms/", {
+      method:"POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(payload)
+    });
+
+    if(!res.ok){
+      const err = await res.text().catch(()=> "");
+      alert("Erreur création V1: " + err);
+      return;
+    }
+
+    await loadForms();
+  });
+
+  async function cloneForm(formId){
+    const res = await fetch(`/api/forms/${formId}/clone`, { method:"POST" });
+    if(!res.ok){
+      const err = await res.text().catch(()=> "");
+      alert("Erreur clone: " + err);
+      return;
+    }
+    await loadForms();
+  }
+  window.cloneForm = cloneForm;
+
+  async function deleteForm(formId, isActive, formName, formVersion){
+    if(isActive){
+      alert("Suppression impossible : le formulaire actif ne peut pas être supprimé.");
+      return;
+    }
+    const label = formName ? `${formName} (V${formVersion})` : `Formulaire #${formId}`;
+    if(!confirm(`Confirmer la suppression de ${label} ?`)){
+      return;
+    }
+    const res = await fetch(`/api/forms/${formId}`, { method:"DELETE" });
+    if(!res.ok){
+      const err = await res.text().catch(()=> "");
+      alert(`Erreur suppression (${res.status}) : ${err || "Impossible de supprimer."}`);
+      return;
+    }
+    await loadForms();
+  }
+  window.deleteForm = deleteForm;
+
+  // init
+  (async ()=>{
+    await loadTechnos();
+    await loadForms();
+  })();
+</script>
+<script src="/static/js/logout.js"></script>
+<script src="/static/js/auth_guard.js"></script>
+
+</body>
+</html>

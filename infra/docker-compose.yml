@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: ai_docgen_postgres
+    environment:
+      POSTGRES_DB: ai_docgen
+      POSTGRES_USER: ai_user
+      POSTGRES_PASSWORD: ai_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  app:
+    build:
+      context: ../backend
+    container_name: ai_docgen_app
+    environment:
+      DATABASE_URL: postgresql+psycopg2://ai_user:ai_password@postgres:5432/ai_docgen
+    depends_on:
+      - postgres
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+volumes:
+  pgdata:

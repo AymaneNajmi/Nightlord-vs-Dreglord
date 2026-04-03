@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AI DocGen • Job IA</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#f5f7fb; --card:#fff; --text:#0f172a; --muted:rgba(15,23,42,.62); --stroke:rgba(15,23,42,.10);
+      --primary:#2563eb; --primary-600:#1d4ed8; --primary-soft:rgba(37,99,235,.10);
+      --side-w:300px; --side-bg:#0c1220; --side-bg2:#0a1020; --side-text:rgba(255,255,255,.78);
+      --r-xl:20px; --shadow:0 12px 34px rgba(2,6,23,.08); --shadow2:0 10px 26px rgba(2,6,23,.06);
+    }
+    html, body { height:100%; width:100%; }
+    body{
+      margin:0; background:var(--bg); color:var(--text);
+      font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+      font-size:14px; line-height:1.5; overflow:hidden;
+    }
+    *{ box-sizing:border-box; }
+    .app{ position:relative; height:100vh; width:100%; }
+
+    .sidebar{ position:fixed; top:0; left:0; bottom:0; width:var(--side-w); background:linear-gradient(180deg,var(--side-bg) 0%,var(--side-bg2) 100%); border-right:1px solid rgba(255,255,255,.06); padding:18px 16px; display:flex; flex-direction:column; overflow:hidden; transition: transform .28s ease, opacity .2s ease; z-index:1000; }
+    .sidebar .side-scroll{ overflow:auto; padding-right:4px; }
+    .sidebar .side-scroll::-webkit-scrollbar{ width:10px; }
+    .sidebar .side-scroll::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.12); border-radius:999px; }
+    .sidebar .side-scroll::-webkit-scrollbar-track{ background:transparent; }
+
+    .brand{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px; border-radius:var(--r-xl); background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); margin-bottom:14px; flex:0 0 auto; }
+    .brand-left{ display:flex; align-items:center; gap:10px; min-width:0; }
+    .brand img{ height:28px; width:auto; opacity:.98; }
+    .brand-dot{ width:9px; height:9px; border-radius:999px; background:#ef4444; box-shadow:0 0 0 5px rgba(239,68,68,.12); }
+    .brand-menu{ width:40px; height:40px; border-radius:14px; display:grid; place-items:center; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.10); color:rgba(255,255,255,.82); cursor:pointer; flex:0 0 auto; }
+
+    .side-section{ margin-top:8px; padding:0 6px 10px; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,.50); }
+    .side-nav{ display:flex; flex-direction:column; gap:10px; padding:0 4px; }
+    .side-link{ display:flex; align-items:center; gap:12px; padding:14px; border-radius:16px; color:var(--side-text); font-weight:700; border:1px solid transparent; text-decoration:none; min-width:0; }
+    .side-link:hover{ color:#fff; background:rgba(255,255,255,.05); border-color:rgba(255,255,255,.08); }
+    .side-link.active{ color:#fff; background:rgba(255,255,255,.09); border-color:rgba(255,255,255,.10); box-shadow:0 12px 26px rgba(0,0,0,.18); }
+
+    .side-footer{ margin-top:auto; padding-top:14px; flex:0 0 auto; }
+    .logout{ display:flex; align-items:center; gap:10px; padding:14px; border-radius:16px; color:rgba(252,165,165,.95); font-weight:800; border:1px solid rgba(252,165,165,.22); background:rgba(239,68,68,.06); text-decoration:none; }
+    .logout:hover{ background:rgba(239,68,68,.10); color:#fecaca; }
+
+    .main{ margin-left:var(--side-w); height:100vh; overflow:auto; padding:28px 30px 40px; }
+    .main::-webkit-scrollbar{ width:10px; }
+    .main::-webkit-scrollbar-thumb{ background:rgba(15,23,42,.14); border-radius:999px; }
+    .main::-webkit-scrollbar-track{ background:transparent; }
+
+    .container-max{ max-width:1200px; margin:0 auto; }
+    .page-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:18px; flex-wrap:wrap; }
+    .title{ font-size:26px; font-weight:800; letter-spacing:-.3px; margin:0; }
+    .subtitle{ margin-top:6px; color:var(--muted); font-size:14px; }
+    .head-actions{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; justify-content:flex-end; }
+    .btn{ border-radius:14px; font-weight:700; padding:10px 14px; white-space:nowrap; }
+    .btn-outline-secondary{ border-color:rgba(15,23,42,.14); color:rgba(15,23,42,.70); background:#fff; box-shadow:var(--shadow2); }
+    .btn-outline-secondary:hover{ background:rgba(15,23,42,.03); border-color:rgba(15,23,42,.18); color:rgba(15,23,42,.82); }
+    .btn-primary{ background:var(--primary); border-color:var(--primary); box-shadow:0 12px 28px rgba(37,99,235,.18); }
+    .btn-primary:hover{ background:var(--primary-600); border-color:var(--primary-600); }
+
+    .cardx{ background:var(--card); border:1px solid var(--stroke); border-radius:var(--r-xl); box-shadow:var(--shadow); overflow:hidden; }
+    .cardx-head{ padding:18px 20px; display:flex; align-items:center; justify-content:space-between; gap:12px; border-bottom:1px solid rgba(15,23,42,.06); flex-wrap:wrap; }
+    .cardx-body{ padding:18px 20px 20px; }
+    .card-title{ display:flex; align-items:center; gap:10px; font-weight:800; font-size:20px; margin:0; }
+    .card-hint{ margin-top:4px; color:var(--muted); font-size:13px; }
+    .iconbox{ width:44px; height:44px; border-radius:14px; display:grid; place-items:center; background:var(--primary-soft); border:1px solid rgba(37,99,235,.14); color:var(--primary); flex:0 0 auto; }
+
+    .badge-soft{ border-radius:999px; font-weight:800; padding:6px 10px; font-size:12px; }
+    .badge-pending{ background:rgba(59,130,246,.12); color:#1d4ed8; }
+    .badge-running{ background:rgba(234,179,8,.14); color:#92400e; }
+    .badge-done{ background:rgba(34,197,94,.14); color:#166534; }
+    .badge-failed{ background:rgba(239,68,68,.14); color:#991b1b; }
+
+    .outline-list{ list-style:none; padding-left:0; margin:0; }
+    .outline-item{ padding:8px 0; border-bottom:1px dashed rgba(15,23,42,.1); }
+    .outline-item:last-child{ border-bottom:none; }
+    .outline-title{ font-weight:700; }
+    .outline-markers{ color:var(--muted); font-size:12px; }
+
+    .log-box{ background:#0f172a; color:#e2e8f0; border-radius:14px; padding:14px; font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace; font-size:12px; max-height:220px; overflow:auto; }
+
+    .app.collapsed .sidebar{ transform:translateX(-100%); opacity:0; pointer-events:none; }
+    .app.collapsed .main{ margin-left:0; }
+
+    @media (max-width: 992px){
+      .sidebar{ transform:translateX(-100%); opacity:0; pointer-events:none; }
+      .app.sidebar-open .sidebar{ transform:translateX(0); opacity:1; pointer-events:auto; }
+      .main{ margin-left:0; padding:18px 14px 24px; }
+    }
+  </style>
+</head>
+<body data-required-role="ADMIN">
+<div class="app" id="appRoot">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-left">
+        <img src="/static/img/cbi-logo.png" alt="CBI">
+        <span class="brand-dot"></span>
+      </div>
+      <button class="brand-menu" id="toggleSidebar" type="button" aria-label="Toggle sidebar">
+        <i class="bi bi-list fs-5"></i>
+      </button>
+    </div>
+    <div class="side-scroll">
+      <div class="side-section">Menu principal</div>
+      <nav class="side-nav">
+        <a class="side-link" href="/admin"><i class="bi bi-file-earmark-text"></i> Gérer technologies</a>
+        <a class="side-link" href="/admin/forms"><i class="bi bi-ui-checks-grid"></i> Gérer formulaires</a>
+        <a class="side-link" href="/admin/form-builder"><i class="bi bi-layout-text-window-reverse"></i> Form Builder</a>
+        <a class="side-link active" href="/admin/ai-template-builder"><i class="bi bi-magic"></i> AI Form/Template Builder</a>
+        <a class="side-link" href="/admin/ai-template-builder/new"><i class="bi bi-stars"></i> AI Form Builder Rich</a>
+        <a class="side-link" href="/admin/users"><i class="bi bi-people"></i> Gérer utilisateurs</a>
+      </nav>
+    </div>
+    <div class="side-footer">
+      <a class="logout" href="/login" id="logoutBtn" data-logout>
+        <i class="bi bi-box-arrow-left"></i> Se déconnecter
+      </a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="container-max">
+      <div class="page-head">
+        <div>
+          <h1 class="title">Job IA <span id="jobTitle">#</span></h1>
+          <div class="subtitle">Suivi de génération IA + preview structure.</div>
+        </div>
+        <div class="head-actions">
+          <button class="btn btn-outline-secondary" id="toggleSidebarTop" type="button" title="Afficher/Masquer menu">
+            <i class="bi bi-layout-sidebar-inset"></i>
+          </button>
+          <a class="btn btn-outline-secondary" href="/admin/ai-template-builder"><i class="bi bi-arrow-left"></i> Retour</a>
+          <button class="btn btn-outline-secondary" id="refreshBtn"><i class="bi bi-arrow-repeat"></i> Refresh</button>
+          <button class="btn btn-outline-secondary" id="generateRichBtn"><i class="bi bi-stars"></i> Generate Rich</button>
+          <button class="btn btn-primary" id="runBtn"><i class="bi bi-play-circle"></i> Run</button>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-lg-6">
+          <div class="cardx">
+            <div class="cardx-head">
+              <div>
+                <div class="card-title"><span class="iconbox"><i class="bi bi-info-circle"></i></span> Statut</div>
+                <div class="card-hint">Progression du job et métadonnées.</div>
+              </div>
+            </div>
+            <div class="cardx-body">
+              <div class="d-flex flex-column gap-2">
+                <div><strong>Status:</strong> <span id="jobStatus"></span></div>
+                <div><strong>Progress:</strong> <span id="jobProgress">0%</span></div>
+                <div><strong>Techno:</strong> <span id="jobTechno">-</span></div>
+                <div><strong>Type:</strong> <span id="jobType">-</span></div>
+                <div><strong>Provider LLM:</strong> <span id="jobProvider">-</span></div>
+                <div><strong>Créé:</strong> <span id="jobCreated">-</span></div>
+              </div>
+              <div class="mt-3" id="jobLinks"></div>
+              <div class="mt-2 text-muted" id="richInfo">Rich form: —</div>
+              <div class="mt-3 text-danger" id="jobError"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="cardx">
+            <div class="cardx-head">
+              <div>
+                <div class="card-title"><span class="iconbox"><i class="bi bi-shield-lock"></i></span> Redaction report</div>
+                <div class="card-hint">Résumé des noms supprimés.</div>
+              </div>
+            </div>
+            <div class="cardx-body">
+              <div id="redactionReport" class="text-muted">—</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="cardx">
+            <div class="cardx-head">
+              <div>
+                <div class="card-title"><span class="iconbox"><i class="bi bi-diagram-3"></i></span> Preview structure</div>
+                <div class="card-hint">Aperçu des titres + marqueurs.</div>
+              </div>
+            </div>
+            <div class="cardx-body">
+              <ul class="outline-list" id="outlineList">
+                <li class="text-muted">Aucun aperçu disponible.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="cardx">
+            <div class="cardx-head">
+              <div>
+                <div class="card-title"><span class="iconbox"><i class="bi bi-journal-text"></i></span> Logs</div>
+                <div class="card-hint">Journal d'exécution.</div>
+              </div>
+            </div>
+            <div class="cardx-body">
+              <div class="log-box" id="jobLogs">Aucun log.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  const appRoot = document.getElementById("appRoot");
+  document.getElementById("toggleSidebar")?.addEventListener("click", () => {
+    appRoot.classList.toggle("sidebar-open");
+  });
+  document.getElementById("toggleSidebarTop")?.addEventListener("click", () => {
+    appRoot.classList.toggle("collapsed");
+  });
+
+  const jobId = Number(window.location.pathname.split("/").pop());
+
+  function statusBadge(status){
+    if(status === "DONE") return '<span class="badge-soft badge-done">DONE</span>';
+    if(status === "FAILED") return '<span class="badge-soft badge-failed">FAILED</span>';
+    if(status === "RUNNING") return '<span class="badge-soft badge-running">RUNNING</span>';
+    return '<span class="badge-soft badge-pending">PENDING</span>';
+  }
+
+  function renderOutline(list){
+    const el = document.getElementById("outlineList");
+    if(!list || !list.length){
+      el.innerHTML = '<li class="text-muted">Aucun aperçu disponible.</li>';
+      return;
+    }
+    el.innerHTML = list.map(item => {
+      const markers = (item.markers || []).join(" • ");
+      return `
+        <li class="outline-item">
+          <div class="outline-title">H${item.level} • ${item.title}</div>
+          <div class="outline-markers">${markers || "—"}</div>
+        </li>
+      `;
+    }).join("");
+  }
+
+  function renderRedaction(report){
+    const el = document.getElementById("redactionReport");
+    if(!report){
+      el.textContent = "—";
+      return;
+    }
+    const items = report.items || report.names || [];
+    if(Array.isArray(items) && items.length){
+      el.innerHTML = items.map(item => {
+        if(typeof item === "string") return `<div>${item}</div>`;
+        return `<div>${item.name || ""} • ${item.occurrences || 0} occurrence(s)</div>`;
+      }).join("");
+      return;
+    }
+    el.textContent = JSON.stringify(report, null, 2);
+  }
+
+
+
+  async function generateRich(){
+    const btn = document.getElementById("generateRichBtn");
+    btn.disabled = true;
+    try{
+      const res = await fetch(`/api/admin/ai-form-builder/jobs/${jobId}/generate-rich`, { method: "POST" });
+      const payload = await res.json().catch(() => ({}));
+      if(!res.ok){
+        throw new Error(payload.detail || `Erreur (${res.status})`);
+      }
+      await loadJob();
+      if(payload.form_template_id){
+        window.location.href = `/admin/forms/preview?form_id=${payload.form_template_id}`;
+      }
+    }catch(err){
+      document.getElementById("jobError").textContent = err.message || "Erreur génération rich";
+    }finally{
+      btn.disabled = false;
+    }
+  }
+
+  async function loadJob(){
+    const res = await fetch(`/api/admin/ai-template-builder/jobs/${jobId}`);
+    if(!res.ok){
+      document.getElementById("jobError").textContent = `Erreur (${res.status})`;
+      return;
+    }
+    const job = await res.json();
+    document.getElementById("jobTitle").textContent = `#${job.id}`;
+    document.getElementById("jobStatus").innerHTML = statusBadge(job.status);
+    document.getElementById("jobProgress").textContent = `${job.progress || 0}%`;
+    document.getElementById("jobTechno").textContent = job.techno_name || "-";
+    document.getElementById("jobType").textContent = job.template_type || "-";
+    document.getElementById("jobProvider").textContent = job.llm_provider || "openai";
+    document.getElementById("jobCreated").textContent = new Date(job.created_at).toLocaleString();
+    document.getElementById("jobLogs").textContent = job.logs || "Aucun log.";
+    document.getElementById("jobError").textContent = job.error_message || "";
+
+    renderRedaction(job.redaction_report);
+    renderOutline(job.output_payload?.template_outline || []);
+
+    const links = [];
+    if(job.template_doc_id){
+      links.push(`<a class="btn btn-sm btn-outline-secondary" href="/api/technos/docs/${job.template_doc_id}/download">Voir TemplateDoc</a>`);
+    }
+    if(job.form_template_id){
+      links.push(`<a class="btn btn-sm btn-outline-secondary" href="/admin/forms/preview?form_id=${job.form_template_id}">Voir FormTemplate</a>`);
+    }
+    if(job.techno_id){
+      links.push(`<a class="btn btn-sm btn-outline-secondary" href="/admin/technos/${job.techno_id}">Voir Techno</a>`);
+    }
+    document.getElementById("jobLinks").innerHTML = links.join(" ");
+    document.getElementById("richInfo").textContent = job.form_template_id
+      ? `Rich form template_id: ${job.form_template_id}`
+      : "Rich form: non généré";
+
+    const runBtn = document.getElementById("runBtn");
+    runBtn.disabled = job.status === "RUNNING";
+  }
+
+  document.getElementById("refreshBtn").addEventListener("click", loadJob);
+  document.getElementById("generateRichBtn").addEventListener("click", generateRich);
+
+  document.getElementById("runBtn").addEventListener("click", async () => {
+    await fetch(`/api/admin/ai-template-builder/jobs/${jobId}/run`, { method: "POST" });
+    setTimeout(loadJob, 800);
+  });
+
+  loadJob();
+</script>
+</body>
+</html>

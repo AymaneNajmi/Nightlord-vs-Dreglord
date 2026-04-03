@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AI DocGen • Formulaire (Admin)</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#f5f7fb; --card:#fff; --text:#0f172a; --muted:rgba(15,23,42,.62); --stroke:rgba(15,23,42,.10);
+      --primary:#2563eb; --primary-600:#1d4ed8; --primary-soft:rgba(37,99,235,.10);
+      --side-w:300px; --side-bg:#0c1220; --side-bg2:#0a1020; --side-text:rgba(255,255,255,.78);
+      --r-xl:20px; --shadow:0 12px 34px rgba(2,6,23,.08); --shadow2:0 10px 26px rgba(2,6,23,.06);
+    }
+
+    html, body { height:100%; width:100%; }
+    body{
+      margin:0; background:var(--bg); color:var(--text);
+      font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+      font-size:14px; line-height:1.5;
+      overflow:hidden;
+    }
+    *{ box-sizing:border-box; }
+
+    .app{ position:relative; height:100vh; width:100%; }
+
+    .sidebar{
+      position:fixed; top:0; left:0; bottom:0;
+      width:var(--side-w);
+      background:linear-gradient(180deg,var(--side-bg) 0%,var(--side-bg2) 100%);
+      border-right:1px solid rgba(255,255,255,.06);
+      padding:18px 16px;
+      display:flex; flex-direction:column;
+      overflow:hidden;
+      transition: transform .28s ease, opacity .2s ease;
+      z-index:1000;
+    }
+    .sidebar .side-scroll{ overflow:auto; padding-right:4px; }
+    .sidebar .side-scroll::-webkit-scrollbar{ width:10px; }
+    .sidebar .side-scroll::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.12); border-radius:999px; }
+    .sidebar .side-scroll::-webkit-scrollbar-track{ background:transparent; }
+
+    .brand{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:14px; border-radius:var(--r-xl);
+      background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
+      margin-bottom:14px; flex:0 0 auto;
+    }
+    .brand-left{ display:flex; align-items:center; gap:10px; min-width:0; }
+    .brand img{ height:28px; width:auto; opacity:.98; }
+    .brand-dot{ width:9px; height:9px; border-radius:999px; background:#ef4444; box-shadow:0 0 0 5px rgba(239,68,68,.12); }
+    .brand-menu{
+      width:40px; height:40px; border-radius:14px;
+      display:grid; place-items:center;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.10);
+      color:rgba(255,255,255,.82);
+      cursor:pointer; flex:0 0 auto;
+    }
+
+    .side-section{
+      margin-top:8px; padding:0 6px 10px;
+      font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,.50);
+    }
+    .side-nav{ display:flex; flex-direction:column; gap:10px; padding:0 4px; }
+    .side-link{
+      display:flex; align-items:center; gap:12px; padding:14px; border-radius:16px;
+      color:var(--side-text); font-weight:700; border:1px solid transparent; text-decoration:none;
+      min-width:0;
+    }
+    .side-link:hover{ color:#fff; background:rgba(255,255,255,.05); border-color:rgba(255,255,255,.08); }
+    .side-link.active{ color:#fff; background:rgba(255,255,255,.09); border-color:rgba(255,255,255,.10); box-shadow:0 12px 26px rgba(0,0,0,.18); }
+
+    .side-footer{ margin-top:auto; padding-top:14px; flex:0 0 auto; }
+    .logout{
+      display:flex; align-items:center; gap:10px; padding:14px; border-radius:16px;
+      color:rgba(252,165,165,.95); font-weight:800;
+      border:1px solid rgba(252,165,165,.22); background:rgba(239,68,68,.06);
+      text-decoration:none;
+    }
+    .logout:hover{ background:rgba(239,68,68,.10); color:#fecaca; }
+
+    .main{
+      margin-left:var(--side-w);
+      height:100vh;
+      overflow:auto;
+      padding:28px 30px 40px;
+    }
+    .main::-webkit-scrollbar{ width:10px; }
+    .main::-webkit-scrollbar-thumb{ background:rgba(15,23,42,.14); border-radius:999px; }
+    .main::-webkit-scrollbar-track{ background:transparent; }
+
+    .container-max{ max-width:1200px; margin:0 auto; }
+
+    .page-head{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:16px;
+      margin-bottom:18px; flex-wrap:wrap;
+    }
+    .title{ font-size:26px; font-weight:800; letter-spacing:-.3px; margin:0; }
+    .subtitle{ margin-top:6px; color:var(--muted); font-size:14px; }
+
+    .head-actions{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; justify-content:flex-end; }
+
+    .btn{ border-radius:14px; font-weight:700; padding:10px 14px; white-space:nowrap; }
+    .btn-outline-secondary{
+      border-color:rgba(15,23,42,.14); color:rgba(15,23,42,.70); background:#fff; box-shadow:var(--shadow2);
+    }
+    .btn-outline-secondary:hover{ background:rgba(15,23,42,.03); border-color:rgba(15,23,42,.18); color:rgba(15,23,42,.82); }
+    .btn-primary{ background:var(--primary); border-color:var(--primary); box-shadow:0 12px 28px rgba(37,99,235,.18); }
+    .btn-primary:hover{ background:var(--primary-600); border-color:var(--primary-600); }
+
+    .cardx{ background:var(--card); border:1px solid var(--stroke); border-radius:var(--r-xl); box-shadow:var(--shadow); overflow:hidden; }
+    .cardx-head{
+      padding:18px 20px; display:flex; align-items:center; justify-content:space-between; gap:12px;
+      border-bottom:1px solid rgba(15,23,42,.06);
+      flex-wrap:wrap;
+    }
+    .cardx-body{ padding:18px 20px 20px; }
+
+    .pill{
+      font-size:12px; background:#f8fafc; border:1px solid rgba(16,24,40,.10);
+      padding:.25rem .55rem; border-radius:999px; font-weight:700;
+    }
+
+    .question-card{
+      border:1px solid rgba(15,23,42,.08);
+      border-radius:16px;
+      padding:14px 16px;
+      background:#fff;
+      box-shadow:var(--shadow2);
+    }
+
+    .option-pill{
+      border:1px dashed rgba(15,23,42,.18);
+      border-radius:999px;
+      padding:.2rem .6rem;
+      font-size:12px;
+      color:rgba(15,23,42,.7);
+      background:#f8fafc;
+    }
+
+    .form-label{ font-size:12px; font-weight:700; color:rgba(15,23,42,.75); margin-bottom:6px; }
+  </style>
+</head>
+<body data-required-role="ADMIN">
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-left">
+        <img src="https://dummyimage.com/120x40/111827/ffffff&text=AI+DocGen" alt="AI DocGen"/>
+        <span class="brand-dot"></span>
+      </div>
+      <div class="brand-menu"><i class="bi bi-grid-1x2"></i></div>
+    </div>
+
+    <div class="side-scroll">
+      <div class="side-section">Navigation</div>
+      <nav class="side-nav">
+        <a class="side-link" href="/admin">
+          <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+        <a class="side-link active" href="/admin/forms">
+          <i class="bi bi-ui-checks"></i> Formulaires
+        </a>
+        <a class="side-link" href="/admin/form-builder">
+          <i class="bi bi-diagram-3"></i> Form Builder
+        </a>
+        <a class="side-link" href="/admin/ai-template-builder">
+          <i class="bi bi-magic"></i> AI Form/Template Builder
+        </a>
+          <a class="side-link" href="/admin/ai-template-builder/new"><i class="bi bi-stars"></i> AI Form Builder Rich</a>
+      </nav>
+    </div>
+
+    <div class="side-footer">
+      <a class="logout" href="/login" id="logoutBtn">
+        <i class="bi bi-box-arrow-left"></i> Déconnexion
+      </a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="container-max">
+      <div class="page-head">
+        <div>
+          <h1 class="title" id="formTitle">Formulaire</h1>
+          <div class="subtitle" id="formMeta">Chargement…</div>
+        </div>
+        <div class="head-actions">
+          <a class="btn btn-outline-secondary" href="/admin/forms">
+            <i class="bi bi-arrow-left"></i> Retour liste
+          </a>
+          <a class="btn btn-primary" id="builderBtn" href="#">
+            <i class="bi bi-pencil-square"></i> Ouvrir builder
+          </a>
+        </div>
+      </div>
+
+      <div class="cardx">
+        <div class="cardx-head">
+          <div>
+            <div class="fw-bold">Sections & Questions</div>
+            <div class="text-secondary small">Modifie, supprime ou ajoute des questions sans quitter l'admin.</div>
+          </div>
+          <div class="text-secondary small" id="sectionCount"></div>
+        </div>
+        <div class="cardx-body" id="content">
+          <div class="text-secondary">Chargement…</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal fade" id="questionModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <h5 class="modal-title" id="questionModalTitle">Modifier une question</h5>
+          <div class="small text-secondary" id="questionModalSubtitle"></div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="modalSectionId" />
+        <input type="hidden" id="modalQuestionId" />
+
+        <label class="form-label">Question</label>
+        <input class="form-control mb-2" id="qLabel" placeholder="Texte de la question" />
+
+        <div class="row g-2">
+          <div class="col-md-6">
+            <label class="form-label">Type</label>
+            <select class="form-select" id="qType">
+              <option value="text">Texte</option>
+              <option value="single_choice">Choix unique</option>
+              <option value="multi_choice">Choix multiple</option>
+                  <option value="module_hardware_cisco">Module: Hardware Cisco</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Ordre</label>
+            <input class="form-control" id="qOrder" type="number" min="0" placeholder="0" />
+          </div>
+          <div class="col-md-3 d-flex align-items-end">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="qRequired" />
+              <label class="form-check-label" for="qRequired">Obligatoire</label>
+            </div>
+          </div>
+        </div>
+
+        <label id="qHelpLabel" class="form-label mt-3">Aide (optionnel)</label>
+        <textarea class="form-control" id="qHelp" rows="2" placeholder="Aide affichée pour l'utilisateur"></textarea>
+
+        <div id="optionsBox" class="mt-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="fw-semibold">Options</div>
+            <button class="btn btn-sm btn-outline-secondary" type="button" id="addOptBtn">+ Option</button>
+          </div>
+          <div id="optionsList" class="mt-2"></div>
+          <div class="small text-secondary">Obligatoire pour les choix uniques/multiples.</div>
+        </div>
+
+        <div class="text-danger small mt-2" id="qModalMsg"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Annuler</button>
+        <button class="btn btn-primary" type="button" id="saveQuestionBtn">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const esc = s => String(s).replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;" }[m]));
+  const formId = new URLSearchParams(location.search).get("form_id");
+  const content = document.getElementById("content");
+  const sectionCount = document.getElementById("sectionCount");
+  const builderBtn = document.getElementById("builderBtn");
+  let currentForm = null;
+
+  builderBtn.href = formId ? `/admin/form-builder?form_id=${formId}` : "/admin/form-builder";
+
+  const modal = new bootstrap.Modal(document.getElementById("questionModal"));
+  let modalMode = "edit"; // edit | create
+
+  function setOptionsVisible(){
+    const type = document.getElementById("qType").value;
+    const isChoice = (type === "single_choice" || type === "multi_choice");
+    const isHardwareModule = type === "module_hardware_cisco";
+    document.getElementById("optionsBox").style.display = isChoice ? "block" : "none";
+    document.getElementById("qHelpLabel").style.display = isHardwareModule ? "none" : "";
+    document.getElementById("qHelp").style.display = isHardwareModule ? "none" : "";
+    if (isHardwareModule && !document.getElementById("qLabel").value.trim()) {
+      document.getElementById("qLabel").value = "Hardware Cisco";
+    }
+  }
+
+  document.getElementById("qType").addEventListener("change", setOptionsVisible);
+
+  function addOptionRow(value = ""){
+    const id = "opt_" + Math.random().toString(16).slice(2);
+    document.getElementById("optionsList").insertAdjacentHTML("beforeend", `
+      <div class="input-group mb-2" id="${id}">
+        <input class="form-control optLabel" placeholder="Option..." value="${esc(value)}" data-opt="1" />
+        <button class="btn btn-outline-danger" type="button" onclick="document.getElementById('${id}').remove()">
+          <i class="bi bi-x"></i>
+        </button>
+      </div>
+    `);
+  }
+
+  document.getElementById("addOptBtn").addEventListener("click", () => addOptionRow());
+
+  function openModal({ mode, sectionId, question, sectionTitle }){
+    modalMode = mode;
+    document.getElementById("qModalMsg").textContent = "";
+    document.getElementById("optionsList").innerHTML = "";
+
+    document.getElementById("modalSectionId").value = sectionId || "";
+    document.getElementById("modalQuestionId").value = question?.id || "";
+    document.getElementById("questionModalTitle").textContent = mode === "create" ? "Ajouter une question" : "Modifier une question";
+    document.getElementById("questionModalSubtitle").textContent = sectionTitle ? `Section : ${sectionTitle}` : "";
+
+    document.getElementById("qLabel").value = question?.label || "";
+    document.getElementById("qType").value = question?.qtype || "text";
+    document.getElementById("qRequired").checked = Boolean(question?.is_required);
+    document.getElementById("qHelp").value = question?.help_text || "";
+    document.getElementById("qOrder").value = (question?.order_index ?? "");
+
+    if (question?.options?.length) {
+      question.options.forEach(opt => addOptionRow(opt.label));
+    }
+
+    setOptionsVisible();
+    modal.show();
+  }
+
+  async function loadForm(){
+    if (!formId) {
+      content.innerHTML = `<div class="text-danger">Aucun form_id fourni.</div>`;
+      return;
+    }
+
+    const res = await fetch(`/api/forms/${formId}/full`);
+    if (!res.ok) {
+      content.innerHTML = `<div class="text-danger">Erreur API /api/forms/${formId}/full</div>`;
+      return;
+    }
+
+    const form = await res.json();
+    currentForm = form;
+    document.getElementById("formTitle").textContent = form.name || `Formulaire #${form.id}`;
+    document.getElementById("formMeta").textContent = form.techno_name ? `${form.techno_name} • ${form.doc_filename || "Doc"}` : "";
+
+    const sections = form.sections || [];
+    sectionCount.textContent = `${sections.length} section(s)`;
+
+    if (!sections.length){
+      content.innerHTML = `<div class="text-secondary">Aucune section.</div>`;
+      return;
+    }
+
+    content.innerHTML = sections.map(sec => {
+      const questions = sec.questions || [];
+      const questionsHtml = questions.length ? questions.map(q => renderQuestionCard(sec, q)).join("") : `
+        <div class="text-secondary small">Aucune question dans cette section.</div>
+      `;
+
+      return `
+        <div class="mb-4">
+          <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
+            <div>
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="pill">${esc(sec.sec_key || "")}</span>
+                <div class="fw-bold" style="font-size:18px">${esc(sec.title)}</div>
+              </div>
+              <div class="text-secondary small">Niveau H${esc(sec.level || "?")}</div>
+            </div>
+            <div>
+              <button class="btn btn-sm btn-outline-secondary js-add-question" type="button" data-section-id="${sec.id}">
+                <i class="bi bi-plus-circle"></i> Ajouter une question
+              </button>
+            </div>
+          </div>
+          <div class="d-grid gap-2">
+            ${questionsHtml}
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function renderQuestionCard(section, q){
+    const req = q.is_required ? `<span class="text-danger">*</span>` : "";
+    const opts = (q.options || []).map(o => `<span class="option-pill">${esc(o.label)}</span>`).join(" ");
+    return `
+      <div class="question-card">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+          <div>
+            <div class="fw-semibold">${esc(q.label)} ${req}</div>
+            <div class="small text-secondary">Type: ${esc(q.qtype)} • Ordre: ${esc(q.order_index ?? "-")}</div>
+            ${q.help_text ? `<div class="small text-secondary mt-1">${esc(q.help_text)}</div>` : ""}
+            ${opts ? `<div class="mt-2 d-flex flex-wrap gap-1">${opts}</div>` : ""}
+          </div>
+          <div class="d-inline-flex gap-2">
+            <button class="btn btn-sm btn-outline-primary js-edit-question" type="button" data-question-id="${q.id}" data-section-id="${section.id}">
+              <i class="bi bi-pencil"></i> Modifier
+            </button>
+            <button class="btn btn-sm btn-outline-danger js-delete-question" type="button" data-question-id="${q.id}">
+              <i class="bi bi-trash"></i> Supprimer
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  async function deleteQuestion(questionId){
+    if(!confirm("Supprimer cette question ?")) return;
+    const res = await fetch(`/api/forms/questions/${questionId}`, { method: "DELETE" });
+    if(!res.ok){
+      alert("Erreur suppression");
+      return;
+    }
+    await loadForm();
+  }
+
+  content.addEventListener("click", (event) => {
+    const addBtn = event.target.closest(".js-add-question");
+    if (addBtn) {
+      const sectionId = Number(addBtn.dataset.sectionId);
+      const section = currentForm?.sections?.find(s => s.id === sectionId);
+      openModal({ mode: "create", sectionId, sectionTitle: section?.title || "" });
+      return;
+    }
+
+    const editBtn = event.target.closest(".js-edit-question");
+    if (editBtn) {
+      const questionId = Number(editBtn.dataset.questionId);
+      const sectionId = Number(editBtn.dataset.sectionId);
+      const section = currentForm?.sections?.find(s => s.id === sectionId);
+      const question = section?.questions?.find(q => q.id === questionId);
+      if (!question) return;
+      openModal({ mode: "edit", sectionId, question, sectionTitle: section?.title || "" });
+      return;
+    }
+
+    const deleteBtn = event.target.closest(".js-delete-question");
+    if (deleteBtn) {
+      const questionId = Number(deleteBtn.dataset.questionId);
+      deleteQuestion(questionId);
+    }
+  });
+
+  document.getElementById("saveQuestionBtn").addEventListener("click", async () => {
+    const label = document.getElementById("qLabel").value.trim();
+    const qtype = document.getElementById("qType").value;
+    const is_required = document.getElementById("qRequired").checked;
+    const help_text = document.getElementById("qHelp").value.trim() || null;
+    const orderValue = document.getElementById("qOrder").value;
+    const order_index = orderValue === "" ? null : Number(orderValue);
+
+    if (!label) {
+      document.getElementById("qModalMsg").textContent = "Le texte de la question est obligatoire.";
+      return;
+    }
+
+    let options = [];
+    if (qtype === "single_choice" || qtype === "multi_choice") {
+      options = Array.from(document.querySelectorAll(".optLabel[data-opt]"))
+        .map(i => ({ label: i.value.trim() }))
+        .filter(o => o.label);
+      if (!options.length) {
+        document.getElementById("qModalMsg").textContent = "Ajoute au moins une option.";
+        return;
+      }
+    }
+
+    const payload = {
+      label: qtype === "module_hardware_cisco" ? (label || "Hardware Cisco") : label,
+      qtype,
+      is_required,
+      help_text: qtype === "module_hardware_cisco" ? null : help_text,
+      options,
+    };
+    if (order_index !== null && !Number.isNaN(order_index)) {
+      payload.order_index = order_index;
+    }
+
+    let res;
+    if (modalMode === "create") {
+      const sectionId = document.getElementById("modalSectionId").value;
+      res = await fetch(`/api/forms/sections/${sectionId}/questions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+    } else {
+      const questionId = document.getElementById("modalQuestionId").value;
+      res = await fetch(`/api/forms/questions/${questionId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+    }
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      document.getElementById("qModalMsg").textContent = data.detail || "Erreur enregistrement";
+      return;
+    }
+
+    modal.hide();
+    await loadForm();
+  });
+
+  loadForm();
+</script>
+<script src="/static/js/logout.js"></script>
+<script src="/static/js/auth_guard.js"></script>
+
+</body>
+</html>

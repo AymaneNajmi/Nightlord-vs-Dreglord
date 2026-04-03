@@ -1,0 +1,1084 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Remplir le formulaire • AI DocGen</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <script src="https://cdn.tiny.cloud/1/rilkpt4a0mttqrttefmqsoehtqx3eqz8hzmzrcs7xtkwu42y/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+
+  <style>
+    /* Variables & Base Layout (from file 2) */
+    :root{
+      --bg:#f5f7fb; --card:#fff; --text:#0f172a; --muted:rgba(15,23,42,.62); --stroke:rgba(15,23,42,.10);
+      --primary:#2563eb; --primary-600:#1d4ed8; --primary-soft:rgba(37,99,235,.10);
+      --side-w:300px; --side-bg:#0c1220; --side-bg2:#0a1020; --side-text:rgba(255,255,255,.78);
+      --r-xl:20px; --shadow:0 12px 34px rgba(2,6,23,.08); --shadow2:0 10px 26px rgba(2,6,23,.06);
+    }
+
+    html, body { height:100%; width:100%; }
+    body{
+      margin:0;
+      background:var(--bg); color:var(--text);
+      font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+      font-size:14px; line-height:1.5;
+      overflow:hidden;
+    }
+    *{ box-sizing:border-box; }
+
+    .app{ position:relative; height:100vh; width:100%; }
+
+    .sidebar{
+      position:fixed; top:0; left:0; bottom:0; width:var(--side-w);
+      background:linear-gradient(180deg,var(--side-bg) 0%,var(--side-bg2) 100%);
+      border-right:1px solid rgba(255,255,255,.06); padding:18px 16px;
+      display:flex; flex-direction:column; overflow:hidden;
+      transition: transform .28s ease, opacity .2s ease; z-index:1000;
+    }
+
+    .sidebar .side-scroll{ overflow:auto; padding-right:4px; }
+    .sidebar .side-scroll::-webkit-scrollbar{ width:10px; }
+    .sidebar .side-scroll::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.12); border-radius:999px; }
+    .sidebar .side-scroll::-webkit-scrollbar-track{ background:transparent; }
+
+    .brand{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:14px; border-radius:var(--r-xl); background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
+      margin-bottom:14px; flex:0 0 auto;
+    }
+    .brand-left{ display:flex; align-items:center; gap:10px; min-width:0; }
+    .brand img{ height:28px; width:auto; opacity:.98; }
+    .brand-dot{ width:9px; height:9px; border-radius:999px; background:#ef4444; box-shadow:0 0 0 5px rgba(239,68,68,.12); }
+    .brand-menu{
+      width:40px; height:40px; border-radius:14px; display:grid; place-items:center;
+      background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.10); color:rgba(255,255,255,.82);
+      cursor:pointer; flex:0 0 auto;
+    }
+
+    .side-section{ margin-top:8px; padding:0 6px 10px; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,.50); }
+    .side-nav{ display:flex; flex-direction:column; gap:10px; padding:0 4px; }
+    .side-link{
+      display:flex; align-items:center; gap:12px; padding:14px; border-radius:16px;
+      color:var(--side-text); font-weight:700; border:1px solid transparent; text-decoration:none; min-width:0;
+    }
+    .side-link:hover{ color:#fff; background:rgba(255,255,255,.05); border-color:rgba(255,255,255,.08); }
+    .side-link.active{ color:#fff; background:rgba(255,255,255,.09); border-color:rgba(255,255,255,.10); box-shadow:0 12px 26px rgba(0,0,0,.18); }
+
+    .side-footer{ margin-top:auto; padding-top:14px; flex:0 0 auto; }
+    .logout{
+      display:flex; align-items:center; gap:10px; padding:14px; border-radius:16px;
+      color:rgba(252,165,165,.95); font-weight:800; border:1px solid rgba(252,165,165,.22); background:rgba(239,68,68,.06);
+      text-decoration:none;
+    }
+    .logout:hover{ background:rgba(239,68,68,.10); color:#fecaca; }
+
+    .main{ position:relative; margin-left:var(--side-w); height:100vh; overflow:auto; padding:28px 30px 40px; }
+    .main::-webkit-scrollbar{ width:10px; }
+    .main::-webkit-scrollbar-thumb{ background:rgba(15,23,42,.14); border-radius:999px; }
+    .main::-webkit-scrollbar-track{ background:transparent; }
+
+    .container-max{ max-width:1200px; margin:0 auto; }
+
+    .page-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:18px; flex-wrap:wrap; }
+    .title{ font-size:26px; font-weight:800; letter-spacing:-.3px; margin:0; }
+
+    .head-actions{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; justify-content:flex-end; }
+
+    .btn{ border-radius:14px; font-weight:700; padding:10px 14px; white-space:nowrap; }
+    .btn-outline-secondary{ border-color:rgba(15,23,42,.14); color:rgba(15,23,42,.70); background:#fff; box-shadow:var(--shadow2); }
+    .btn-outline-secondary:hover{ background:rgba(15,23,42,.03); border-color:rgba(15,23,42,.18); color:rgba(15,23,42,.82); }
+    .btn-primary{ background:var(--primary); border-color:var(--primary); box-shadow:0 12px 28px rgba(37,99,235,.18); }
+    .btn-primary:hover{ background:var(--primary-600); border-color:var(--primary-600); }
+
+    .userchip{
+      display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:999px;
+      border:1px solid var(--stroke); background:#fff; box-shadow:var(--shadow2); white-space:nowrap; max-width:100%;
+    }
+    .avatar{
+      width:36px; height:36px; border-radius:999px; display:grid; place-items:center;
+      background:var(--primary); color:#fff; font-weight:900;
+    }
+    .status{ border-radius:999px; font-weight:800; padding:6px 10px; }
+
+    .cardx{ background:var(--card); border:1px solid var(--stroke); border-radius:var(--r-xl); box-shadow:var(--shadow); overflow:hidden; }
+    .cardx-head{
+      padding:18px 20px; display:flex; align-items:center; justify-content:space-between; gap:12px;
+      border-bottom:1px solid rgba(15,23,42,.06); flex-wrap:wrap;
+    }
+    .cardx-body{ padding:18px 20px 20px; }
+
+    .card-title{ display:flex; align-items:center; gap:10px; font-weight:800; font-size:20px; margin:0; }
+    .card-hint{ margin-top:4px; color:var(--muted); font-size:13px; }
+
+    .iconbox{
+      width:44px; height:44px; border-radius:14px; display:grid; place-items:center;
+      background:var(--primary-soft); border:1px solid rgba(37,99,235,.14); color:var(--primary); flex:0 0 auto;
+    }
+
+    .form-label{ font-size:12px; font-weight:700; color:rgba(15,23,42,.75); margin-bottom:8px; }
+    .form-control,.form-select{
+      border-radius:14px; border:1px solid rgba(15,23,42,.12); padding:11px 12px; font-size:14px; background:#fff; width:100%; min-width:0;
+    }
+    .form-control:focus,.form-select:focus{ border-color:rgba(37,99,235,.30); box-shadow:0 0 0 .22rem rgba(37,99,235,.10); }
+
+    /* Custom styles from file 1 */
+    .tag { font-size: 12px; background: #f1f5f9; border: 1px solid rgba(16, 24, 40, .10); padding: .25rem .5rem; border-radius: 999px }
+    .ai-box { background: #fbfdff; border: 1px dashed rgba(16, 24, 40, .18); border-radius: 12px; padding: 12px; }
+    textarea { min-height: 120px; }
+    .muted { color: #6b7280 }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    @media (max-width: 992px){
+      .sidebar{ transform:translateX(-100%); opacity:0; pointer-events:none; }
+      .app.sidebar-open .sidebar{ transform:translateX(0); opacity:1; pointer-events:auto; }
+      .main{ margin-left:0; padding:18px 14px 24px; }
+    }
+    .app.collapsed .sidebar{ transform:translateX(-100%); opacity:0; pointer-events:none; }
+    .app.collapsed .main{ margin-left:0; }
+  </style>
+</head>
+
+<body data-required-role="USER">
+<div class="app" id="appRoot">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-left">
+        <img src="/static/img/cbi-logo.png" alt="CBI">
+        <span class="brand-dot"></span>
+      </div>
+      <button class="brand-menu" id="toggleSidebar" type="button" aria-label="Toggle sidebar">
+        <i class="bi bi-list fs-5"></i>
+      </button>
+    </div>
+
+    <div class="side-scroll">
+      <div class="side-section">Menu principal</div>
+      <nav class="side-nav">
+        <a class="side-link" href="/user">
+          <i class="bi bi-ui-checks-grid"></i> 1) Choix Techno & Worksheet
+        </a>
+        <a class="side-link" href="/user/sections">
+          <i class="bi bi-layers"></i> 2) Sections à supprimer
+        </a>
+        <a class="side-link active" href="/user/form">
+          <i class="bi bi-pencil-square"></i> 3) Remplir & Générer
+        </a>
+        <a class="side-link" href="/hardware">
+          <i class="bi bi-cpu"></i> Hardware Cisco
+        </a>
+      </nav>
+    </div>
+
+    <div class="side-footer">
+      <a class="logout" href="/login" data-logout>
+        <i class="bi bi-box-arrow-left"></i> Déconnexion
+      </a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="container-max">
+      
+      <div class="page-head">
+        <div>
+          <h1 class="title">Remplir le formulaire</h1>
+          <span id="formMeta">Chargement...</span><br>
+          <div class="small muted mt-1">Submission ID: <span id="subId">-</span></div>
+          <div class="small muted mt-1">
+            Worksheet ID: <span id="wsInfo">-</span>
+            • Sections supprimées (DOCX): <span id="rmInfo">0</span>
+          </div>
+          <div class="small muted mt-1">
+            Clés supprimées (DOCX): <span id="rmKeys" class="mono">-</span>
+          </div>
+          <div class="small text-secondary mt-2">
+            ⚠️ Les sections cochées restent visibles ici. Elles seront supprimées uniquement dans le DOCX.
+          </div>
+        </div>
+
+        <div class="head-actions">
+          <div class="d-flex align-items-center gap-2">
+            <label class="small text-secondary fw-semibold mb-0" for="targetLanguageSelect">Langue</label>
+            <select id="targetLanguageSelect" class="form-select" style="min-width:120px;" title="Target language">
+              <option value="fr">Français</option>
+              <option value="en">Anglais</option>
+              <option value="es">Espagnol</option>
+              <option value="ar">Arabe</option>
+            </select>
+          </div>
+          <button class="btn btn-outline-secondary" id="toggleSidebarTop" type="button" title="Afficher/Masquer menu">
+            <i class="bi bi-layout-sidebar-inset"></i>
+          </button>
+          <button class="btn btn-outline-primary" id="previewBtn" title="Button action">Prévisualiser (AI)</button>
+          <button class="btn btn-outline-success" id="previewDocxBtn" title="Button action">Prévisualiser DOCX</button>
+          <button class="btn btn-primary" id="generateBtn" title="Button action">Générer le document</button>
+          
+          <div class="userchip">
+            <div class="avatar" id="userInitials">US</div>
+            <div class="d-none d-md-block" style="line-height:1.12; min-width:0;">
+              <div class="fw-bold small text-truncate" id="userFullName">Utilisateur</div>
+              <div class="small text-secondary text-truncate" id="userRole">USER</div>
+            </div>
+            <span class="badge text-bg-success status">Online</span>
+          </div>
+        </div>
+      </div>
+
+      <section class="cardx">
+        <div class="cardx-head">
+          <div class="d-flex align-items-center gap-3">
+            <div class="iconbox"><i class="bi bi-file-earmark-text"></i></div>
+            <div>
+              <div class="card-title" id="formTitle">Formulaire</div>
+              <div class="card-hint">Réponds aux sections puis lance la génération</div>
+            </div>
+          </div>
+          <div class="d-flex gap-2 flex-wrap">
+            <a class="btn btn-outline-secondary" href="/user">← User Dashboard</a>
+            <a class="btn btn-outline-secondary" href="/admin" data-admin-only style="display:none;">← Admin Panel</a>
+          </div>
+        </div>
+
+        <div class="cardx-body">
+          <div id="generalFieldsBlock" class="mb-3" style="display:none;">
+            <div class="p-3 rounded" style="background:#fff;border:1px dashed rgba(16,24,40,.25)">
+              <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div class="fw-bold">Étape obligatoire — Champs généraux</div>
+                <span class="badge text-bg-warning">À compléter avant le formulaire</span>
+              </div>
+              <div class="small text-secondary mt-2">Renseigne les placeholders du template ([[TEXT: ...]] / [[LOGO]]).</div>
+              <div id="generalFieldsForm" class="mt-3"></div>
+              <div class="mt-3 d-flex gap-2">
+                <button class="btn btn-primary" type="button" id="generalContinueBtn" title="Button action">Continuer vers le formulaire</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="formStepBlock">
+            <div id="richInsertBlock" class="mb-3" style="display:none;">
+              <div class="p-3 rounded" style="background:#fff;border:1px dashed rgba(16,24,40,.25)">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                  <div class="fw-bold" id="richInsertTitle">Insertion (détecté: [[insérer]] dans le DOCX)</div>
+                  <span class="badge text-bg-info">Optionnel</span>
+                </div>
+                <div class="small text-secondary mt-2">
+                  Tu peux écrire un paragraphe riche (gras, listes, liens, image, etc.).
+                </div>
+                <div class="mt-3">
+                  <textarea id="insertHtml" title="Text input"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <form id="formBox">
+              <div class="text-muted">Chargement des sections...</div>
+            </form>
+          </div>
+
+          <div id="msg" class="small mt-3"></div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  // UTILS & UI INITIALIZATION
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, m =>
+    ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;" }[m])
+  );
+
+  (function(){
+    const fullName = localStorage.getItem("user_full_name") || "";
+    const email = localStorage.getItem("user_email") || "user";
+    const role = localStorage.getItem("user_role") || "USER";
+    document.getElementById("userFullName").textContent = fullName || email;
+    document.getElementById("userRole").textContent = role;
+    const initials = (fullName || email).split(/[\s.@_-]+/).filter(Boolean).slice(0,2).map(x=>x[0].toUpperCase()).join("");
+    document.getElementById("userInitials").textContent = initials || "US";
+  })();
+
+  (function(){
+    const app = document.getElementById("appRoot");
+    const b1 = document.getElementById("toggleSidebar");
+    const b2 = document.getElementById("toggleSidebarTop");
+
+    const saved = localStorage.getItem("sidebar_state");
+    if(saved === "collapsed") app.classList.add("collapsed");
+
+    function toggle(){
+      if(window.innerWidth <= 992){
+        app.classList.toggle("sidebar-open");
+        return;
+      }
+      app.classList.toggle("collapsed");
+      localStorage.setItem("sidebar_state", app.classList.contains("collapsed") ? "collapsed" : "open");
+    }
+
+    b1?.addEventListener("click", toggle);
+    b2?.addEventListener("click", toggle);
+
+    window.addEventListener("resize", ()=>{
+      if(window.innerWidth > 992) app.classList.remove("sidebar-open");
+    });
+  })();
+
+  // APP LOGIC (From file 1)
+  function loadState() {
+    try { return JSON.parse(localStorage.getItem("user_flow") || "{}"); }
+    catch (err) { return {}; }
+  }
+
+  function normalizeToArray(v) {
+    if (!v) return [];
+    if (Array.isArray(v)) return v.filter(Boolean);
+    if (typeof v === "string") {
+      const s = v.trim();
+      if (!s) return [];
+      if (s.startsWith("[") && s.endsWith("]")) {
+        try { return JSON.parse(s).filter(Boolean); } catch (err) { return []; }
+      }
+      return s.split(",").map(x => x.trim()).filter(Boolean);
+    }
+    return [];
+  }
+
+  function getRemovedSecKeys() {
+    const st = loadState();
+    return normalizeToArray(st.removed_sec_keys ?? st.removed_section_keys ?? []);
+  }
+
+  function getRemovedTitles() {
+    const st = loadState();
+    return normalizeToArray(st.removed_titles ?? []);
+  }
+
+  function getWorksheetId() {
+    const st = loadState();
+    return st.worksheet_id || null;
+  }
+
+  function refreshTopInfo() {
+    const ws = getWorksheetId();
+    const rm = getRemovedTitles();
+    document.getElementById("wsInfo").textContent = ws ? String(ws) : "-";
+    document.getElementById("rmInfo").textContent = String((rm || []).length);
+    document.getElementById("rmKeys").textContent = (rm && rm.length) ? rm.join(", ") : "-";
+  }
+
+  function getFormId() {
+    const parts = location.pathname.split("/").filter(Boolean);
+    const last = parts[parts.length - 1];
+    const maybeId = parseInt(last, 10);
+    if (!isNaN(maybeId)) return maybeId;
+    const st = loadState();
+    return st.form_id ? parseInt(st.form_id, 10) : null;
+  }
+
+  const formId = getFormId();
+  let currentSubmissionId = null;
+  let formDataCache = null;
+  let availableLlmProviders = [];
+  let lastAiSectionsText = {};
+  let hasRichInsert = false;
+  let hasSectionInsert = false;
+  let contentBlocks = [];
+  let generalPlaceholders = { text_placeholders: [], has_logo: false };
+  let currentLogoUploadId = null;
+  let generalFieldsReady = false;
+  const tinySelectors = new Set();
+  const OTHER_OPTION_LABELS = new Set(["autres", "other"]);
+  const otherTextState = {};
+  const moduleResultState = {};
+  let moduleSaveEndpointSupported = false;
+
+  function fieldName(qid) { return `q_${qid}`; }
+  function isOtherOptionLabel(label) {
+    return OTHER_OPTION_LABELS.has(String(label || "").trim().toLowerCase());
+  }
+
+  function initTinyForSelector(selector) {
+    if (tinySelectors.has(selector)) return;
+    tinySelectors.add(selector);
+    tinymce.init({
+      selector,
+      height: 260,
+      menubar: true,
+      plugins: 'lists link image table code',
+      toolbar: 'undo redo | bold italic underline | bullist numlist | link image table | code',
+      paste_data_images: true
+    });
+  }
+
+  function getInsertPayload() {
+    const map = {};
+    document.querySelectorAll("textarea.insert-html").forEach(el => {
+      const key = el.dataset.insertKey || "";
+      if (!key) return;
+      const ed = tinymce.get(el.id);
+      map[key] = ed ? (ed.getContent() || "") : "";
+    });
+    if (Object.keys(map).length > 0) {
+      return { insert_html: JSON.stringify({ __type: "map", items: map }) };
+    }
+    const globalEditor = tinymce.get("insertHtml");
+    if (globalEditor) return { insert_html: globalEditor.getContent() || "" };
+    return {};
+  }
+
+  function getGeneralValuesPayload() {
+    const values = {};
+    document.querySelectorAll("textarea[data-general-text-id]").forEach(el => {
+      const key = el.dataset.generalTextId || "";
+      if (!key) return;
+      values[key] = el.value || "";
+    });
+    return { text_placeholder_values: values, logo_upload_id: currentLogoUploadId || null };
+  }
+
+  async function uploadLogoIfNeeded() {
+    const logoInput = document.getElementById("generalLogoInput");
+    if (!logoInput || !logoInput.files || !logoInput.files[0]) return;
+    const fd = new FormData();
+    fd.append("file", logoInput.files[0]);
+    const res = await fetch("/api/forms/assets/logo/upload", { method: "POST", body: fd });
+    if (!res.ok) throw new Error("Upload logo impossible.");
+    const data = await res.json();
+    currentLogoUploadId = data.logo_upload_id || null;
+  }
+
+  function renderGeneralFields(placeholders) {
+    generalPlaceholders = placeholders || { text_placeholders: [], has_logo: false };
+    const list = Array.isArray(generalPlaceholders.text_placeholders) ? generalPlaceholders.text_placeholders : [];
+    const hasLogo = !!generalPlaceholders.has_logo;
+    const block = document.getElementById("generalFieldsBlock");
+    const container = document.getElementById("generalFieldsForm");
+    const formStep = document.getElementById("formStepBlock");
+
+    if (!list.length && !hasLogo) {
+      block.style.display = "none";
+      formStep.style.display = "";
+      generalFieldsReady = true;
+      return;
+    }
+
+    generalFieldsReady = false;
+    block.style.display = "";
+    formStep.style.display = "none";
+
+    const rows = list.map(item => `
+      <div class="mb-3">
+        <label class="form-label fw-semibold">${esc(item.description || item.id || "Texte")}</label>
+        <textarea class="form-control" rows="3" data-general-text-id="${esc(item.id || "")}" placeholder="Saisir ${esc(item.description || "le texte")}" title="Text input"></textarea>
+      </div>
+    `);
+
+    if (hasLogo) {
+      rows.push(`
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Logo</label>
+          <input id="generalLogoInput" type="file" accept="image/*" class="form-control" title="Input field">
+        </div>
+      `);
+    }
+    container.innerHTML = rows.join("");
+  }
+
+  function renderQuestion(q) {
+    const required = q.is_required ? "required" : "";
+    const help = q.help_text ? `<div class="small text-secondary mb-2">${esc(q.help_text)}</div>` : "";
+    const questionKey = q.question_key || `q_${q.id}`;
+    const showIf = q.show_if ? ` data-show-if="${esc(JSON.stringify(q.show_if))}"` : "";
+
+    if (q.qtype === "module_hardware_cisco") {
+      return `
+        <div class="mb-3 question-block"${showIf} data-module-question-id="${q.id}">
+          <label class="form-label fw-semibold">${esc(q.label)} ${q.is_required ? '<span class="text-danger">*</span>' : ""}</label>
+          <div class="small text-secondary mb-2">Module Cisco: entre une référence puis enregistre.</div>
+          <div class="input-group mb-2">
+            <input class="form-control module-hardware-ref" data-question-id="${q.id}" placeholder="C9200L-24T-4X-E" title="Input field">
+            <button class="btn btn-success module-hardware-save" type="button" data-question-id="${q.id}" title="Button action">Enregistrer</button>
+            <button class="btn btn-outline-secondary module-hardware-debug" type="button" data-question-id="${q.id}" title="Button action">Debug JSON</button>
+            <button class="btn btn-primary module-hardware-docx" type="button" data-question-id="${q.id}" title="Button action">Generate DOCX</button>
+          </div>
+          <div class="small mb-2 module-status" id="moduleStatus_${q.id}">Pas encore exécuté.</div>
+          <pre class="small bg-light border rounded p-2 module-json" id="moduleJson_${q.id}" style="max-height:220px;overflow:auto;display:none;"></pre>
+        </div>
+      `;
+    }
+
+    if (q.qtype === "text") {
+      return `
+        <div class="mb-3 question-block"${showIf}>
+          <label class="form-label fw-semibold">${esc(q.label)} ${q.is_required ? '<span class="text-danger">*</span>' : ""}</label>
+          ${help}
+          <input class="form-control" name="${fieldName(q.id)}" data-question-key="${esc(questionKey)}" ${required} title="Input field">
+        </div>
+      `;
+    }
+
+    const renderOtherInput = (optionLabel) => {
+      if (!isOtherOptionLabel(optionLabel)) return "";
+      return `
+        <div class="mt-2 ms-4 other-text-wrapper" style="display:none;" data-question-id="${q.id}" data-other-option-label="${esc(optionLabel)}" data-question-label="${esc(q.label)}">
+          <input type="text" class="form-control other-text-input" placeholder="Précisez..." data-question-id="${q.id}" data-other-option-label="${esc(optionLabel)}" data-question-label="${esc(q.label)}" disabled title="Input field">
+        </div>
+      `;
+    };
+
+    if (q.qtype === "single_choice") {
+      const opts = (q.options || []).map((o, idx) => {
+        const optionId = `q_${q.id}_opt_${idx}`;
+        return `
+          <div class="form-check">
+            <input class="form-check-input other-option-input" type="radio" id="${optionId}" name="${fieldName(q.id)}" value="${esc(o.label)}" data-question-key="${esc(questionKey)}" data-question-id="${q.id}" data-other-option-label="${esc(o.label)}" ${required} title="Input field">
+            <label class="form-check-label" for="${optionId}">${esc(o.label)}</label>
+          </div>
+          ${renderOtherInput(o.label)}
+        `;
+      }).join("");
+      return `
+        <div class="mb-3 question-block"${showIf}>
+          <div class="form-label fw-semibold">${esc(q.label)} ${q.is_required ? '<span class="text-danger">*</span>' : ""}</div>
+          ${help}${opts}
+        </div>
+      `;
+    }
+
+    const opts = (q.options || []).map((o, idx) => {
+      const optionId = `q_${q.id}_opt_${idx}`;
+      return `
+        <div class="form-check">
+          <input class="form-check-input other-option-input" type="checkbox" id="${optionId}" name="${fieldName(q.id)}" value="${esc(o.label)}" data-question-key="${esc(questionKey)}" data-question-id="${q.id}" data-other-option-label="${esc(o.label)}" title="Input field">
+          <label class="form-check-label" for="${optionId}">${esc(o.label)}</label>
+        </div>
+        ${renderOtherInput(o.label)}
+      `;
+    }).join("");
+    return `
+      <div class="mb-3 question-block"${showIf}>
+        <div class="form-label fw-semibold">${esc(q.label)} ${q.is_required ? '<span class="text-danger">*</span>' : ""}</div>
+        ${help}${opts}
+      </div>
+    `;
+  }
+
+  function renderSection(s) {
+    const purpose = s.purpose_text || s.section_intent;
+    const intentHtml = purpose ? `<div class="small text-secondary mt-1"><b>But :</b> ${esc(purpose)}</div>` : "";
+    const qs = (s.questions || []).map(renderQuestion).join("") || `<div class="text-secondary small">Aucune question.</div>`;
+    const removed = getRemovedSecKeys().includes(s.sec_key);
+
+    return `
+      <div class="p-3 rounded mb-3" style="background:#fff;border:1px solid rgba(16,24,40,.08)">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <span class="tag">H${s.level}</span>
+          <div class="fw-bold">${esc(s.title)} ${removed ? '<span class="badge text-bg-danger ms-2">supprimée dans le DOCX</span>' : ""}</div>
+          <div class="text-secondary small">(${esc(s.sec_key)})</div>
+        </div>
+        ${intentHtml}
+        <div class="mt-3">${qs}</div>
+        <div class="mt-3 ai-box" id="aiBox_${esc(s.sec_key)}" style="display:none;">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="fw-semibold">Prévisualisation (AI)</div>
+            <button type="button" class="btn btn-sm btn-outline-success" onclick="saveSection('${esc(s.sec_key)}')" title="Button action">Enregistrer cette section</button>
+          </div>
+          <div class="small text-secondary mb-2">Commentaire (optionnel) :</div>
+          <textarea class="form-control mb-3" id="comment_${esc(s.sec_key)}" placeholder="Ex: reformule plus court..." title="Text input"></textarea>
+          <div class="small text-secondary mb-2">Texte final (modifiable) :</div>
+          <textarea class="form-control" id="final_${esc(s.sec_key)}" title="Text input"></textarea>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderInsertBlock(block) {
+    const label = block.insert_label || block.insert_key || "";
+    return `
+      <div class="p-3 rounded mb-3" style="background:#fff;border:1px dashed rgba(16,24,40,.18)">
+        <div class="fw-bold">Insertion (détecté: [[insérer]])</div>
+        <div class="small text-secondary mt-1">${esc(label)}</div>
+        <div class="mt-3">
+          <textarea id="insertHtml_${esc(block.order_index)}" class="insert-html" data-insert-key="${esc(block.insert_key || "")}" title="Text input"></textarea>
+        </div>
+      </div>
+    `;
+  }
+
+  async function loadForm() {
+    refreshTopInfo();
+    const box = document.getElementById("formBox");
+    if (!formId) { location.href = "/user"; return; }
+
+    const r = await fetch(`/api/forms/${formId}/full`);
+    if (!r.ok) { box.innerHTML = `<div class="text-danger">Erreur chargement (ID ${formId}).</div>`; return; }
+
+    const data = await r.json();
+    formDataCache = data;
+    renderGeneralFields(data.general_placeholders);
+
+    hasRichInsert = !!data.has_rich_insert;
+    contentBlocks = Array.isArray(data.content_blocks) ? data.content_blocks : [];
+
+    document.getElementById("formTitle").textContent = data.name || `Formulaire #${formId}`;
+    document.getElementById("formMeta").textContent = `Techno: ${data.techno_name || "-"} • Doc: ${data.doc_filename || "-"}`;
+
+    if (contentBlocks.length) {
+      const sectionMap = {};
+      (data.sections || []).forEach(sec => sectionMap[sec.sec_key] = sec);
+      box.innerHTML = contentBlocks.map(block => {
+        if (block.type === "section") return renderSection(sectionMap[block.sec_key]);
+        if (block.type === "insert") return renderInsertBlock(block);
+        return "";
+      }).join("");
+      initTinyForSelector("textarea.insert-html");
+    } else {
+      box.innerHTML = (data.sections || []).map(renderSection).join("");
+    }
+
+    const showGlobalInsert = hasRichInsert && !contentBlocks.length;
+    document.getElementById("richInsertBlock").style.display = showGlobalInsert ? "block" : "none";
+    if (showGlobalInsert) initTinyForSelector("#insertHtml");
+
+    initConditionalLogic();
+    initOtherOptionBehavior();
+    await initHardwareModuleWidgets();
+  }
+
+  function getAnswersByKey() {
+    const inputs = Array.from(document.querySelectorAll("[data-question-key]"));
+    const answers = {};
+    inputs.forEach(input => {
+      const key = input.dataset.questionKey;
+      if (!key) return;
+      if (input.type === "radio") {
+        if (input.checked) answers[key] = input.value;
+        return;
+      }
+      if (input.type === "checkbox") {
+        if (!answers[key]) answers[key] = [];
+        if (input.checked) answers[key].push(input.value);
+        return;
+      }
+      answers[key] = input.value;
+    });
+    return answers;
+  }
+
+  function matchShowIf(showIf, answers) {
+    if (!showIf || !showIf.question_key) return true;
+    const value = answers[showIf.question_key];
+    const op = showIf.op || "equals";
+    const expected = showIf.value;
+    if (op === "truthy") {
+      return Array.isArray(value) ? value.length > 0 : Boolean(value);
+    }
+    if (op === "equals") {
+      return value === expected;
+    }
+    if (op === "in") {
+      if (Array.isArray(expected)) {
+        if (Array.isArray(value)) return value.some(v => expected.includes(v));
+        return expected.includes(value);
+      }
+      return value === expected;
+    }
+    if (op === "contains") {
+      if (Array.isArray(value)) return value.includes(expected);
+      if (typeof value === "string") return value.includes(String(expected));
+    }
+    return true;
+  }
+
+  function initConditionalLogic() {
+    const inputs = Array.from(document.querySelectorAll("[data-question-key]"));
+    const blocks = Array.from(document.querySelectorAll(".question-block[data-show-if]"));
+
+    function evaluate() {
+      const answers = getAnswersByKey();
+      blocks.forEach(block => {
+        const raw = block.dataset.showIf;
+        if (!raw) {
+          block.style.display = "";
+          return;
+        }
+        let showIf = null;
+        try {
+          showIf = JSON.parse(raw);
+        } catch (err) {
+          showIf = null;
+        }
+        const visible = matchShowIf(showIf, answers);
+        block.style.display = visible ? "" : "none";
+        Array.from(block.querySelectorAll("input,select,textarea")).forEach(el => {
+          el.disabled = !visible;
+        });
+      });
+    }
+
+    inputs.forEach(input => {
+      input.addEventListener("change", evaluate);
+      input.addEventListener("input", evaluate);
+    });
+
+    evaluate();
+  }
+
+  function syncOtherInputForQuestion(questionId) {
+    const optionInputs = Array.from(document.querySelectorAll(`.other-option-input[data-question-id="${questionId}"]`));
+    const wrappers = Array.from(document.querySelectorAll(`.other-text-wrapper[data-question-id="${questionId}"]`));
+
+    wrappers.forEach(wrapper => {
+      const optionLabel = wrapper.dataset.otherOptionLabel || "";
+      const matchingOption = optionInputs.find(el => (el.dataset.otherOptionLabel || "") === optionLabel);
+      const input = wrapper.querySelector(".other-text-input");
+      const selected = !!matchingOption && matchingOption.checked && !matchingOption.disabled;
+      const stateKey = `${questionId}`;
+
+      if (selected) {
+        wrapper.style.display = "";
+        if (input) {
+          input.disabled = false;
+          input.value = otherTextState[stateKey] || "";
+        }
+      } else {
+        wrapper.style.display = "none";
+        if (input) {
+          input.disabled = true;
+          input.value = "";
+        }
+        otherTextState[stateKey] = "";
+      }
+    });
+  }
+
+  function initOtherOptionBehavior() {
+    const optionInputs = Array.from(document.querySelectorAll(".other-option-input"));
+    const textInputs = Array.from(document.querySelectorAll(".other-text-input"));
+    const questionIds = new Set();
+
+    optionInputs.forEach(input => {
+      if (!isOtherOptionLabel(input.dataset.otherOptionLabel || "")) return;
+      const qid = input.dataset.questionId;
+      if (!qid) return;
+      questionIds.add(qid);
+      input.addEventListener("change", () => syncOtherInputForQuestion(qid));
+    });
+
+    textInputs.forEach(input => {
+      if (!isOtherOptionLabel(input.dataset.otherOptionLabel || "")) return;
+      input.addEventListener("input", () => {
+        const qid = input.dataset.questionId;
+        if (!qid) return;
+        otherTextState[`${qid}`] = input.value;
+      });
+    });
+
+    questionIds.forEach(syncOtherInputForQuestion);
+  }
+
+  function validateOtherTextAnswers() {
+    const wrappers = Array.from(document.querySelectorAll(".other-text-wrapper"));
+    for (const wrapper of wrappers) {
+      const qid = wrapper.dataset.questionId;
+      const optionLabel = wrapper.dataset.otherOptionLabel || "";
+      if (!qid || !isOtherOptionLabel(optionLabel)) continue;
+
+      const selectedOther = Array.from(document.querySelectorAll(`.other-option-input[data-question-id="${qid}"]`))
+        .some(el => (el.dataset.otherOptionLabel || "") === optionLabel && el.checked && !el.disabled);
+      if (!selectedOther) continue;
+
+      const input = wrapper.querySelector(".other-text-input");
+      const value = (input?.value || "").trim();
+      if (!value) {
+        const qLabel = wrapper.dataset.questionLabel || "Cette question";
+        return `${qLabel}: merci de préciser le champ "Autres".`;
+      }
+      otherTextState[`${qid}`] = value;
+    }
+    return null;
+  }
+
+  async function fetchModuleResult(questionId) {
+    const res = await fetch(`/api/forms/${formId}/module-questions/${questionId}/hardware`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.result || null;
+  }
+
+  function renderModuleResult(questionId, result) {
+    moduleResultState[`${questionId}`] = result;
+    const status = document.getElementById(`moduleStatus_${questionId}`);
+    const jsonBox = document.getElementById(`moduleJson_${questionId}`);
+    if (!status || !jsonBox) return;
+
+    if (!result) {
+      status.textContent = "Pas encore exécuté.";
+      status.className = "small mb-2 module-status text-secondary";
+      jsonBox.style.display = "none";
+      jsonBox.textContent = "";
+      return;
+    }
+
+    status.textContent = `OK • Référence: ${result.reference || "-"} • Généré: ${result.generated_at || "-"}`;
+    status.className = "small mb-2 module-status text-success";
+    if (result.output_json) {
+      jsonBox.style.display = "block";
+      jsonBox.textContent = JSON.stringify(result.output_json, null, 2);
+    } else {
+      jsonBox.style.display = "none";
+      jsonBox.textContent = "";
+    }
+  }
+
+  async function initHardwareModuleWidgets() {
+    const moduleBlocks = Array.from(document.querySelectorAll("[data-module-question-id]"));
+    for (const block of moduleBlocks) {
+      const questionId = Number(block.dataset.moduleQuestionId || 0);
+      if (!questionId) continue;
+      const existing = await fetchModuleResult(questionId);
+      renderModuleResult(questionId, existing);
+    }
+
+    document.querySelectorAll(".module-hardware-debug").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const questionId = Number(btn.dataset.questionId || 0);
+        const input = document.querySelector(`.module-hardware-ref[data-question-id="${questionId}"]`);
+        const hardware_reference = (input?.value || "").trim();
+        if (!hardware_reference) { alert("Référence hardware obligatoire"); return; }
+        const res = await fetch(`/api/forms/${formId}/module-questions/${questionId}/hardware/debug`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ hardware_reference }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) { alert(data.detail || "Erreur module"); return; }
+        const refreshed = await fetchModuleResult(questionId);
+        renderModuleResult(questionId, refreshed);
+      });
+    });
+
+    document.querySelectorAll(".module-hardware-save").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const questionId = Number(btn.dataset.questionId || 0);
+        const input = document.querySelector(`.module-hardware-ref[data-question-id="${questionId}"]`);
+        const hardware_reference = (input?.value || "").trim();
+        if (!hardware_reference) { alert("Référence hardware obligatoire"); return; }
+
+        const payload = {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ hardware_reference }),
+        };
+
+        let endpoint = moduleSaveEndpointSupported === false ? "debug" : "save";
+
+        let res = await fetch(`/api/forms/${formId}/module-questions/${questionId}/hardware/${endpoint}`, payload);
+        let data = await res.json().catch(() => ({}));
+
+        if (endpoint === "save" && res.status === 404) {
+          moduleSaveEndpointSupported = false;
+          res = await fetch(`/api/forms/${formId}/module-questions/${questionId}/hardware/debug`, payload);
+          data = await res.json().catch(() => ({}));
+        } else if (endpoint === "save" && res.ok) {
+          moduleSaveEndpointSupported = true;
+        }
+
+        if (!res.ok) { alert(data.detail || "Erreur module"); return; }
+        const refreshed = await fetchModuleResult(questionId);
+        renderModuleResult(questionId, refreshed);
+      });
+    });
+
+    document.querySelectorAll(".module-hardware-docx").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const questionId = Number(btn.dataset.questionId || 0);
+        const input = document.querySelector(`.module-hardware-ref[data-question-id="${questionId}"]`);
+        const hardware_reference = (input?.value || "").trim();
+        if (!hardware_reference) { alert("Référence hardware obligatoire"); return; }
+        const res = await fetch(`/api/forms/${formId}/module-questions/${questionId}/hardware/docx`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ hardware_reference }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) { alert(data.detail || "Erreur module"); return; }
+        const refreshed = await fetchModuleResult(questionId);
+        renderModuleResult(questionId, refreshed);
+      });
+    });
+  }
+
+  function collectAnswers() {
+    const fd = new FormData(document.getElementById("formBox"));
+    const answers = {};
+    for (const [k, v] of fd.entries()) {
+      if (answers[k]) {
+        if (Array.isArray(answers[k])) answers[k].push(v);
+        else answers[k] = [answers[k], v];
+      } else {
+        answers[k] = v;
+      }
+    }
+    return answers;
+  }
+
+  function collectDetailedAnswers() {
+    const detailed = [];
+    const sections = formDataCache?.sections || [];
+    sections.forEach(sec => {
+      (sec.questions || []).forEach(q => {
+        if (q.qtype !== "single_choice" && q.qtype !== "multi_choice") return;
+
+        const selected = Array.from(document.querySelectorAll(`input[name="${fieldName(q.id)}"]:checked`))
+          .map(el => el.value)
+          .filter(Boolean);
+
+        const entry = { question_id: q.id, selected };
+
+        const hasOtherSelected = selected.some(isOtherOptionLabel);
+        const otherText = (otherTextState[`${q.id}`] || "").trim();
+        if (hasOtherSelected && otherText) {
+          entry.other_text = otherText;
+        }
+
+        detailed.push(entry);
+      });
+    });
+    return detailed;
+  }
+
+  async function doSubmit() {
+    if (!generalFieldsReady) {
+      throw new Error("Complète d'abord les champs généraux.");
+    }
+    const validationError = validateOtherTextAnswers();
+    if (validationError) {
+      throw new Error(validationError);
+    }
+
+    const answers = collectAnswers();
+    const answers_detailed = collectDetailedAnswers();
+    const ins = getInsertPayload();
+
+    const r1 = await fetch(`/api/forms/${formId}/submit`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        created_by: localStorage.getItem("user_full_name") || localStorage.getItem("user_email") || "",
+        answers,
+        answers_detailed,
+        ...ins
+      })
+    });
+
+    if (!r1.ok) {
+      let detail = "submit_failed";
+      try {
+        const payload = await r1.json();
+        detail = payload.detail || detail;
+      } catch (err) { }
+      throw new Error(detail);
+    }
+
+    const sub = await r1.json();
+    currentSubmissionId = sub.submission_id;
+    document.getElementById("subId").textContent = currentSubmissionId;
+    return currentSubmissionId;
+  }
+
+  globalThis.saveSection = async function (secKey) {
+    if (!currentSubmissionId) {
+      alert("Tu dois d'abord faire Prévisualiser (AI) ou Générer.");
+      return;
+    }
+
+    const finalText = (document.getElementById(`final_${secKey}`)?.value || "").trim();
+    const comment = (document.getElementById(`comment_${secKey}`)?.value || "").trim();
+    if (!finalText) { alert("Texte final vide."); return; }
+
+    const payload = { sections: [{ sec_key: secKey, final_text: finalText, comment }] };
+
+    const r = await fetch(`/api/forms/${formId}/submission/${currentSubmissionId}/sections`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!r.ok) { alert("Erreur sauvegarde section."); return; }
+    alert("Section enregistrée ✅");
+  }
+
+  function getContextPayload(subId) {
+    return {
+      submission_id: subId,
+      removed_titles: getRemovedTitles(),
+      target_language: document.getElementById("targetLanguageSelect").value,
+      ...getGeneralValuesPayload(),
+      ...getInsertPayload()
+    };
+  }
+
+  document.getElementById("previewBtn").onclick = async () => {
+    const msg = document.getElementById("msg");
+    msg.className = "text-secondary"; msg.textContent = "Génération preview...";
+    try {
+      const subId = await doSubmit();
+      const r = await fetch(`/api/forms/${formId}/preview`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(getContextPayload(subId))
+      });
+      if (!r.ok) throw new Error("Preview failed");
+      const data = await r.json();
+      Object.entries(data.sections_text || {}).forEach(([key, txt]) => {
+        const box = document.getElementById(`aiBox_${key}`);
+        const ta = document.getElementById(`final_${key}`);
+        if (box && ta) { box.style.display = "block"; ta.value = txt; }
+      });
+      msg.className = "text-success"; msg.textContent = "Preview OK ✅";
+    } catch (e) { msg.className = "text-danger"; msg.textContent = e.message; }
+  };
+
+  document.getElementById("generateBtn").onclick = async () => {
+    const msg = document.getElementById("msg");
+    msg.className = "text-secondary"; msg.textContent = "Génération DOCX...";
+    try {
+      const subId = currentSubmissionId || await doSubmit();
+      const r = await fetch(`/api/forms/${formId}/generate`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(getContextPayload(subId))
+      });
+      if (!r.ok) throw new Error("Génération failed");
+      const blob = await r.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = `Document_${subId}.docx`;
+      document.body.appendChild(a); a.click(); a.remove();
+      msg.className = "text-success"; msg.textContent = "Généré avec succès ✅";
+    } catch (e) { msg.className = "text-danger"; msg.textContent = e.message; }
+  };
+
+  document.getElementById("generalContinueBtn").onclick = async () => {
+    try {
+      await uploadLogoIfNeeded();
+      generalFieldsReady = true;
+      document.getElementById("generalFieldsBlock").style.display = "none";
+      document.getElementById("formStepBlock").style.display = "";
+    } catch (e) { alert(e.message); }
+  };
+
+  (async () => {
+    await loadForm();
+  })();
+</script>
+
+<script src="/static/js/logout.js"></script>
+<script src="/static/js/auth_guard.js"></script>
+
+</body>
+</html>

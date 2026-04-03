@@ -1,0 +1,27 @@
+# Virtual environments
+.venv/
+venv/
+backend/.venv/
+
+# Environment variables
+.env
+backend/.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# OS / IDE
+.vscode/
+.DS_Store
+.env
+
+# Runtime outputs
+backend/app/generated_docs/
+backend/app/uploads/
+
+# Env / venv
+.env
+.venv/
+__pycache__/
+*.pyc

@@ -1,0 +1,1893 @@
+\documentclass[12pt, a4paper]{report}
+
+% =======================================================
+% 1. IMPORTATION DES PACKAGES ET CONFIGURATION
+% =======================================================
+\usepackage[utf8]{inputenc}      
+\usepackage[T1]{fontenc}         
+\usepackage[french]{babel}       
+\usepackage[top=3cm, bottom=3cm, left=2.5cm, right=2.5cm]{geometry} % Marges ajustées pour le cadre
+\usepackage{graphicx}            
+\usepackage{xcolor}              
+\usepackage{hyperref}            
+\usepackage{titlesec}            % Importé une seule fois ici
+\usepackage{fancyhdr}            
+\usepackage{eso-pic}             % Pour le cadre sur toutes les pages
+\usepackage{tikz}                % Pour dessiner le cadre
+\usetikzlibrary{calc}            % Pour les calculs de coordonnées du cadre
+\usepackage{float}               
+\usepackage{array}               
+\usepackage{longtable}           
+\usepackage{colortbl}
+\usepackage{setspace}
+
+% =======================================================
+% COMMANDES POUR LES RENVOIS ACRONYMES ET GLOSSAIRE
+% =======================================================
+\newcommand{\acref}[1]{\textsuperscript{\hyperlink{acr:#1}{[Acr~#1]}}}
+\newcommand{\gloref}[1]{\textsuperscript{\hyperlink{glo:#1}{[Glo~#1]}}}
+
+% =======================================================
+% 2. DÉFINITION DES COULEURS ACADÉMIQUES
+% =======================================================
+\definecolor{PrimaryColor}{HTML}{1976D2}   % Couleur principale
+\definecolor{ChapColor}{HTML}{003366}    % Bleu marine
+\definecolor{SecColor}{HTML}{00509E}     % Bleu clair
+\definecolor{SubSecColor}{HTML}{E65C00}  % Orange
+\definecolor{SubSubSecColor}{HTML}{FF0000}  % Rouge
+\definecolor{FrameColor}{HTML}{1A2B4C}   % Couleur du cadre (Bleu très sombre)
+
+% =======================================================
+% 3. CONFIGURATION DU CADRE POUR TOUTES LES PAGES
+% =======================================================
+\AddToShipoutPictureBG{%
+  \begin{tikzpicture}[remember picture,overlay]
+    % Cadre extérieur épais
+    \draw[line width=1.2pt, color=FrameColor] 
+      ($(current page.north west) + (1.2cm,-1.2cm)$) 
+      rectangle 
+      ($(current page.south east) + (-1.2cm,1.2cm)$);
+    % Cadre intérieur fin (effet élégant)
+    \draw[line width=0.4pt, color=FrameColor] 
+      ($(current page.north west) + (1.35cm,-1.35cm)$) 
+      rectangle 
+      ($(current page.south east) + (-1.35cm,1.35cm)$);
+  \end{tikzpicture}
+}
+
+% =======================================================
+% 4. EN-TÊTES ET PIEDS DE PAGE (Numérotation)
+% =======================================================
+\pagestyle{fancy}
+\fancyhf{} % Nettoie les en-têtes et pieds de page par défaut
+\renewcommand{\headrulewidth}{0pt} % Désactive la ligne d'en-tête
+\renewcommand{\footrulewidth}{0pt}
+\fancyfoot[C]{\textbf{\thepage}} % Numérotation centrée en bas, en gras
+
+% =======================================================
+% 5. PERSONNALISATION DES TITRES ET ALINÉAS
+% =======================================================
+% --- Formatage visuel (Couleurs, Polices, Tailles) ---
+\titleformat{\chapter}[display]
+  {\centering\normalfont\huge\bfseries\color{ChapColor}}
+  {\chaptertitlename\ \thechapter}{20pt}{\Huge}[\vspace{1ex}\titlerule]
+
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{SecColor}}{\thesection}{1em}{}
+
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{SubSecColor}}{\thesubsection}{1em}{}
+
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{SubSubSecColor}}{\thesubsubsection}{1em}{}
+
+% --- Espacements et Alinéas (\titlespacing) ---
+% Syntaxe : \titlespacing{\commande}{Retrait à gauche (Alinéa)}{Espace avant}{Espace après}
+
+\titlespacing{\section}{0pt}{12pt}{6pt}         % Section : Pas d'alinéa (0pt)
+\titlespacing{\subsection}{1cm}{10pt}{5pt}      % Sous-section : Alinéa de 1 cm
+\titlespacing{\subsubsection}{2cm}{10pt}{5pt}   % Sous-sous-section : Alinéa de 2 cm
+
+% =======================================================
+% 6. INFORMATIONS DU DOCUMENT
+% =======================================================
+\newcommand{\MonSujet}{Conception et réalisation d'une plateforme de génération automatisée de documents techniques via IA (Orchestration multi-LLM OpenAI \& Claude)}
+\newcommand{\MonNom}{Aymane NAJMI}
+\newcommand{\EncadrantEcole}{Pr. Mohannad ELFILALI}
+\newcommand{\EncadrantEntr}{Mlle. Manal FELLIR}
+\newcommand{\Entreprise}{CBI}
+% =======================================================
+% DÉBUT DU DOCUMENT
+% =======================================================
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+\begin{document}
+
+% -------------------------------------------------------
+% PAGE DE GARDE LUXUEUSE ET ACADÉMIQUE
+% -------------------------------------------------------
+\begin{titlepage}
+    % Le cadre de la page est géré par la configuration TikZ en amont
+    \begin{center}
+        
+        % 1. En-tête : Logos
+        \begin{minipage}[c]{0.4\textwidth}
+            \begin{flushleft}
+                \includegraphics[height=1.5cm]{EMSI.png} % Ajustez la hauteur selon l'image
+            \end{flushleft}
+        \end{minipage}
+        \hfill
+        \begin{minipage}[c]{0.4\textwidth}
+            \begin{flushright}
+                \includegraphics[height=1.5cm]{logo_cbi.png} % Ajustez la hauteur selon l'image
+            \end{flushright}
+        \end{minipage}
+        
+        \vspace*{1cm}
+        
+        % 2. Institution et Filière
+        {\large \textbf{Niveau :} 3ème Année Cycle Ingénieur}\\[1.2cm]
+        {\large \textbf{Filière :} Ingénierie Informatique et Réseaux (IIR)}\\[1.2cm]
+        
+        % 3. Nature du document
+        {\LARGE \textbf{RAPPORT DE PROJET DE FIN D'ÉTUDES}}\\[0.5cm]
+        {\large \textit{Sous le thème}}\\[0.5cm]
+        
+        % 4. Titre du Projet (Mise en valeur luxueuse)
+        \noindent\makebox[\linewidth]{\color{FrameColor}\rule{\textwidth}{1.5pt}}\\[0.6cm]
+        {\huge \bfseries \textcolor{ChapColor}{\MonSujet}}\\[0.4cm]
+        \noindent\makebox[\linewidth]{\color{FrameColor}\rule{\textwidth}{1.5pt}}\\[1.2cm]
+        
+        % 5. Période
+        {\large \textbf{Période de stage :} 02 Février 2026 -- 31 Août 2026}\\[1.5cm]
+        
+        % 6. Intervenants (Alignement structuré façon IFMIAC/LEONI)
+        \begin{minipage}[t]{0.45\textwidth}
+            \begin{flushleft} \large
+                \textit{Présenté et réalisé par :}\\[0.3cm]
+                {\Large \textbf{\MonNom}}
+            \end{flushleft}
+        \end{minipage}
+        \hfill
+        \begin{minipage}[t]{0.5\textwidth}
+            \begin{flushright} \large
+                \textit{Sous la direction de :}\\[0.3cm]
+                \textbf{\EncadrantEcole} \\
+                \small{\textcolor{darkgray}{\textit{Encadrant Pédagogique (EMSI)}}}\\[0.4cm]
+                \large\textbf{\EncadrantEntr} \\
+                \small{\textcolor{darkgray}{\textit{Encadrant Industriel (CBI)}}}
+            \end{flushright}
+        \end{minipage}
+        
+        \vfill
+        
+        % 7. Informations Entreprise & Année
+        \textbf{Entreprise d'accueil :} \Entreprise \\
+        \textit{Intégrateur Global de Solutions IT} \\
+        \small{Adresse : CBI Building, 29 Lotissement Attaoufik, Sidi Maarouf, Casablanca}\\[0.8cm]
+        
+        {\large \textbf{Année Universitaire : 2025/2026}}
+        
+    \end{center}
+\end{titlepage}
+
+% --- NUMÉROTATION ROMAINE POUR LE DÉBUT ---
+\pagenumbering{roman}
+
+% -------------------------------------------------------
+% DÉDICACES & REMERCIEMENTS
+% -------------------------------------------------------
+\chapter*{Dédicace}
+\addcontentsline{toc}{chapter}{Dédicace}
+
+\begin{onehalfspace}
+    Nous dédions ce projet à \textbf{Dieu Tout-Puissant}, qui nous a accordé la force et la patience de persévérer. C'est Lui qui nous a inspiré la rigueur et la détermination tout au long de ce travail.\\
+    
+    Nous dédions ce travail à \textbf{nos parents et à notre famille}, piliers de notre parcours. Leur soutien moral, leur patience et leur confiance nous ont portés dans les moments de doute comme dans les réussites.\\
+
+    Ce travail est aussi dédié :
+    \begin{itemize}
+        \item À \textbf{nos amis et camarades de promotion}, dont les encouragements et l'esprit collaboratif ont fait de cette aventure académique un moment de partage.
+        \item À \textbf{nos enseignants} de l'EMSI, dont la pédagogie nous a transmis les bases de notre formation et des valeurs de professionnalisme.\\
+    \end{itemize}
+
+    Enfin, nous dédions ce projet à tous ceux qui croient en l'importance de l'innovation et de l'éducation, et qui nous inspirent à transformer nos idées en solutions concrètes.
+\end{onehalfspace}
+
+\chapter*{Remerciements}
+\addcontentsline{toc}{chapter}{Remerciements}
+
+\begin{onehalfspace}
+    Je remercie toutes les personnes qui ont contribué à la réussite de mon Projet de Fin d'Études portant sur la conception et la réalisation de la plateforme \textbf{DocuGen AI}.
+    \\
+
+    Mes remerciements s'adressent en premier lieu à mon tuteur pédagogique, le professeur \textbf{\EncadrantEcole}, pour son accompagnement rigoureux. Sa disponibilité et ses conseils ont orienté mes recherches tout au long de ce projet.
+    \\
+    
+    Je remercie également ma tutrice industrielle, Mademoiselle \textbf{\EncadrantEntr}. Son encadrement, son soutien technique et la confiance qu'elle m'a accordée m'ont permis de mener à bien cette mission.
+    \\
+
+    Je remercie la direction et les collaborateurs de l'entreprise \textbf{CBI\acref{2}} pour leur accueil et pour m'avoir permis de travailler dans un environnement formateur.
+    \\
+    
+    Mes remerciements vont aussi à l'\textbf{École Marocaine des Sciences de l'Ingénieur (EMSI\acref{8})} pour la qualité de sa formation et les compétences qu'elle m'a transmises.
+    \\
+    Cette expérience a dépassé le cadre du projet académique et m'a beaucoup apporté sur le plan humain et professionnel.
+\end{onehalfspace}
+
+% -------------------------------------------------------
+% RÉSUMÉ / ABSTRACT
+% -------------------------------------------------------
+% =========================================================
+% RÉSUMÉ
+% =========================================================
+\chapter*{Résumé}
+\addcontentsline{toc}{chapter}{Résumé}
+
+Ce projet développe une plateforme web intelligente de génération documentaire, destinée aux ingénieurs et consultants IT souhaitant optimiser et standardiser la production de leurs livrables techniques. La problématique centrale concerne la difficulté croissante de rédiger des dossiers d'architecture rigoureux sans subir les pertes de temps liées au formatage manuel (via les traitements de texte classiques) et aux erreurs de saisie lors de la spécification des équipements matériels.
+
+L’objectif consiste à concevoir une solution fiable et interactive intégrant l'Intelligence Artificielle générative via une architecture multi-LLM, tout en assurant une architecture modulaire et évolutive. Le système vise à démontrer comment l’automatisation intelligente peut être appliquée à un cas concret d'ingénierie documentaire en entreprise, tout en préservant la fluidité de l'expérience utilisateur et la structuration professionnelle des rendus.
+
+La méthodologie adopte une architecture orientée Microservices combinant le framework \textbf{FastAPI} (Python) pour la gestion asynchrone des processus métiers, de l'extraction de données et de la sécurité, \textbf{React.js} pour l'interface utilisateur dynamique, et un environnement conteneurisé \textbf{Docker} pour isoler les traitements lourds. La persistance des données est assurée par \textbf{PostgreSQL}, tandis que le formatage dynamique du document repose sur le moteur de templating \textbf{Jinja2}. L'IA est intégrée via une orchestration hybride faisant collaborer l'\textbf{API OpenAI} et le modèle \textbf{Claude} (Anthropic) afin d'automatiser la rédaction technique, la synthèse des données et la traduction à partir d'intentions (Intents) configurées.
+
+Le système développé met en œuvre un module de création de formulaires dynamiques, un moteur d'extraction automatique des données matérielles à partir de fichiers Excel (Worksheets), et un assistant de rédaction virtuel guidé par le contexte. Les résultats démontrent la capacité de la plateforme à agréger des données hétérogènes en temps quasi-réel, à formuler des descriptions techniques pertinentes via le prompt chaining, et à générer des documents professionnels standardisés.
+
+Le livrable final constitue une application web Single Page Application (SPA) offrant une interface moderne, des fonctionnalités avancées d'assemblage documentaire par IA, et une API Backend sécurisée par JWT. Cette solution robuste illustre l’apport de l'IA générative dans le domaine de l'intégration IT et contribue à transformer significativement la chaîne de valeur de production documentaire.
+
+\vspace{0.5cm}
+\textbf{Mots-clés :} Intelligence Artificielle, FastAPI, React.js, Automatisation documentaire, Jinja2, Microservices, LLM, OpenAI, Claude, Anthropic.
+
+% =========================================================
+% ABSTRACT
+% =========================================================
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+This project develops an intelligent web platform for document generation, intended for engineers and IT consultants wishing to optimize and standardize the production of their technical deliverables. The central issue concerns the increasing difficulty of drafting rigorous architecture files without incurring time losses related to manual formatting (via conventional word processors) and input errors during the specification of hardware equipment.
+
+The objective is to design a reliable and interactive solution integrating generative Artificial Intelligence via a multi-LLM architecture, while ensuring a modular and scalable structure. The system aims to demonstrate how intelligent automation can be applied to a concrete case of document engineering in an enterprise, while preserving the fluidity of the user experience and the professional structuring of the renderings.
+
+The methodology adopts a Microservices-oriented architecture combining the \textbf{FastAPI} framework (Python) for asynchronous management of business processes, data extraction, and security, \textbf{React.js} for a dynamic user interface, and a containerized \textbf{Docker} environment to isolate heavy processing. Data persistence is ensured by \textbf{PostgreSQL}, while dynamic document formatting relies on the \textbf{Jinja2} templating engine. AI is integrated through a hybrid orchestration involving the \textbf{OpenAI API} and the \textbf{Claude} model (Anthropic) to automate technical writing, data synthesis, and translation from configured intents.
+
+The developed system implements a module for creating dynamic forms, an engine for automatically extracting hardware data from Excel files (Worksheets), and a virtual writing assistant guided by context. The results demonstrate the platform’s ability to aggregate heterogeneous data in near-real time, formulate relevant technical descriptions via prompt chaining, and generate standardized professional documents.
+
+The final deliverable is a Single Page Application (SPA) web application offering a modern interface, advanced document assembly features powered by AI, and a secure backend API via JWT. This robust solution illustrates the contribution of generative AI in the field of IT integration and contributes to significantly transforming the document production value chain.
+
+\vspace{1cm}
+\textbf{Keywords:} Artificial Intelligence, FastAPI, React.js, Document automation, Jinja2, Microservices, LLM, OpenAI, Claude, Anthropic.
+
+% -------------------------------------------------------
+% TABLES DES MATIÈRES
+% -------------------------------------------------------
+\tableofcontents
+\listoffigures
+\listoftables
+
+% =======================================================
+% LISTE DES ACRONYMES
+% =======================================================
+\chapter*{Liste des Acronymes}
+\addcontentsline{toc}{chapter}{Liste des Acronymes}
+
+\begin{longtable}{|p{2.5cm}|p{5.5cm}|p{\dimexpr\textwidth-8.8cm}|}
+    % --- EN-TÊTE DE LA PREMIÈRE PAGE ---
+    \hline
+    \rowcolor{ChapColor}
+    \textcolor{white}{\textbf{Acronyme}} & \textcolor{white}{\textbf{Signification}} & \textcolor{white}{\textbf{Contexte / Description}} \\ \hline
+    \endfirsthead
+
+    % --- EN-TÊTE DES PAGES SUIVANTES (Répétition) ---
+    \hline
+    \rowcolor{ChapColor}
+    \textcolor{white}{\textbf{Acronyme}} & \textcolor{white}{\textbf{Signification}} & \textcolor{white}{\textbf{Contexte / Description}} \\ \hline
+    \endhead
+
+    % --- PIED DE PAGE NORMAL (Bas de page avant la fin du tableau) ---
+    \hline
+    \endfoot
+
+    % --- PIED DE PAGE FINAL (Dernière page du tableau) ---
+    \hline
+    \caption{Liste des acronymes et abréviations}
+    \label{tab:acronymes}
+    \endlastfoot
+
+    % --- CONTENU DU TABLEAU (Trié par ordre alphabétique) ---
+    \hypertarget{acr:1}{}\textbf{API} & Application Programming Interface & Interface de programmation permettant aux différentes briques (React, FastAPI, OpenAI, Claude) de communiquer entre elles. \\ \hline
+    
+    \hypertarget{acr:2}{}\textbf{CBI} & Compagnie Bureautique et Informatique & Entreprise d'accueil, intégrateur global de solutions IT et commanditaire du projet. \\ \hline
+    
+    \hypertarget{acr:3}{}\textbf{CMDB} & Configuration Management Database & Base de données contenant l'inventaire des composants du système d'information. \\ \hline
+    
+    \hypertarget{acr:4}{}\textbf{CPU} & Central Processing Unit & Processeur principal de la station de travail (ex: Intel Core i7). \\ \hline
+    
+    \hypertarget{acr:5}{}\textbf{CSS} & Cascading Style Sheets & Langage de feuille de style utilisé pour la mise en forme de l'interface (ex: Tailwind CSS). \\ \hline
+    
+    \hypertarget{acr:6}{}\textbf{DDR5} & Double Data Rate 5 & Norme de mémoire vive rapide utilisée pour l'exécution des conteneurs. \\ \hline
+    
+    \hypertarget{acr:7}{}\textbf{DVCS} & Decentralized Version Control System & Système de gestion de versions décentralisé, rôle assuré par l'outil Git. \\ \hline
+    
+    \hypertarget{acr:8}{}\textbf{EMSI} & École Marocaine des Sciences de l'Ingénieur & Établissement d'enseignement supérieur de l'étudiant. \\ \hline
+    
+    \hypertarget{acr:9}{}\textbf{ESN} & Entreprise de Services du Numérique & Secteur d'activité de l'entreprise CBI. \\ \hline
+    
+    \hypertarget{acr:10}{}\textbf{GPU} & Graphics Processing Unit & Processeur graphique, facilitant certains calculs ou traitements visuels. \\ \hline
+    
+    \hypertarget{acr:11}{}\textbf{HTTP} & Hypertext Transfer Protocol & Protocole réseau utilisé pour les requêtes entre le frontend React et l'API FastAPI. \\ \hline
+    
+    \hypertarget{acr:12}{}\textbf{IA / AI} & Intelligence Artificielle / Artificial Intelligence & Technologie cœur du projet pour la rédaction technique automatisée. \\ \hline
+    
+    \hypertarget{acr:13}{}\textbf{ID} & Identifier & Identifiant unique (ex: Hardware ID extrait des fichiers Excel). \\ \hline
+    
+    \hypertarget{acr:14}{}\textbf{IDE} & Integrated Development Environment & Environnement de développement intégré utilisé par les développeurs (ex: VS Code). \\ \hline
+    
+    \hypertarget{acr:15}{}\textbf{IT} & Information Technology & Technologies de l'information (Domaine d'application du projet). \\ \hline
+    
+    \hypertarget{acr:16}{}\textbf{JS} & JavaScript & Langage de programmation central pour la logique du frontend (React.js). \\ \hline
+    
+    \hypertarget{acr:17}{}\textbf{JSON} & JavaScript Object Notation & Format léger d'échange de données utilisé pour les requêtes API REST. \\ \hline
+    
+    \hypertarget{acr:18}{}\textbf{JWT} & JSON Web Token & Jeton crypté utilisé pour l'authentification sécurisée des utilisateurs sur la plateforme. \\ \hline
+    
+    \hypertarget{acr:19}{}\textbf{LLM} & Large Language Model & Modèle de langage d'intelligence artificielle (ex: GPT-4o d'OpenAI, Claude 3.5 d'Anthropic). \\ \hline
+    
+    \hypertarget{acr:20}{}\textbf{MUI} & Material UI & Bibliothèque de composants graphiques React implémentant le Material Design. \\ \hline
+    
+    \hypertarget{acr:21}{}\textbf{NVMe} & Non-Volatile Memory Express & Protocole de stockage rapide pour les disques SSD. \\ \hline
+    
+    \hypertarget{acr:22}{}\textbf{ORM} & Object-Relational Mapping & Outil logiciel traduisant le code Python en requêtes SQL. \\ \hline
+    
+    \hypertarget{acr:23}{}\textbf{PCIe} & Peripheral Component Interconnect Express & Bus d'extension local rapide pour la connexion de la carte graphique et du SSD. \\ \hline
+    
+    \hypertarget{acr:24}{}\textbf{PDF} & Portable Document Format & Format de fichier standardisé généré en sortie de la plateforme. \\ \hline
+    
+    \hypertarget{acr:25}{}\textbf{PFE} & Projet de Fin d'Études & Cadre académique de la réalisation de la plateforme DocuGen AI. \\ \hline
+    
+    \hypertarget{acr:26}{}\textbf{PSQL} & PostgreSQL & Le système de gestion de base de données relationnelle utilisé dans le projet. \\ \hline
+    
+    \hypertarget{acr:27}{}\textbf{PY} & Python & Langage de programmation principal côté serveur (Backend FastAPI). \\ \hline
+    
+    \hypertarget{acr:28}{}\textbf{QCM} & Questionnaire à Choix Multiples & Type de champ paramétrable dans le Form Builder par l'administrateur. \\ \hline
+    
+    \hypertarget{acr:29}{}\textbf{RAG} & Retrieval-Augmented Generation & Technique visant à fournir à l'IA un contexte métier issu d'une base de données externe. \\ \hline
+    
+    \hypertarget{acr:30}{}\textbf{RAM} & Random Access Memory & Mémoire vive de la machine de développement (16 Go). \\ \hline
+    
+    \hypertarget{acr:31}{}\textbf{RBAC} & Role-Based Access Control & Modèle de sécurité limitant l'accès aux fonctionnalités selon le rôle (Admin, Ingénieur). \\ \hline
+    
+    \hypertarget{acr:32}{}\textbf{REST} & Representational State Transfer & Style d'architecture standardisé suivi par l'API backend (FastAPI). \\ \hline
+    
+    \hypertarget{acr:33}{}\textbf{SGBDR} & Système de Gestion de Base de Données Relationnelle & Type de base de données structurée en tables (ex: PostgreSQL). \\ \hline
+    
+    \hypertarget{acr:34}{}\textbf{SPA} & Single Page Application & Application web à page unique offrant une navigation fluide sans rechargement (React.js). \\ \hline
+    
+    \hypertarget{acr:35}{}\textbf{SQL} & Structured Query Language & Langage standard utilisé pour interagir avec les bases de données relationnelles. \\ \hline
+    
+    \hypertarget{acr:36}{}\textbf{SQLA} & SQLAlchemy & Bibliothèque Python agissant comme ORM (Object Relational Mapper) pour PostgreSQL. \\ \hline
+    
+    \hypertarget{acr:37}{}\textbf{SSD} & Solid State Drive & Matériel de stockage principal de la station de travail, sans pièces mécaniques. \\ \hline
+    
+    \hypertarget{acr:38}{}\textbf{UI / UX} & User Interface / User Experience & Interface Utilisateur et Expérience Utilisateur, garantissant l'ergonomie de l'application. \\ \hline
+    
+    \hypertarget{acr:39}{}\textbf{UML} & Unified Modeling Language & Langage de modélisation visuelle utilisé lors de la phase de conception du projet. \\ \hline
+    
+    \hypertarget{acr:40}{}\textbf{WSL 2} & Windows Subsystem for Linux 2 & Sous-système permettant d'exécuter un environnement GNU/Linux natif sous Windows 11. \\ 
+\end{longtable}
+
+% =======================================================
+% GLOSSAIRE
+% =======================================================
+\chapter*{Glossaire}
+\addcontentsline{toc}{chapter}{Glossaire}
+
+% Introduction optionnelle mais recommandée pour le glossaire
+Ce glossaire rassemble et définit les principaux termes techniques et concepts liés à l'ingénierie logicielle, à l'intelligence artificielle et à l'architecture système utilisés tout au long de ce présent rapport. Il vise à faciliter la compréhension du lecteur.
+
+\vspace{0.5cm}
+
+% Configuration du tableau (2 colonnes)
+\begin{longtable}{|p{4.5cm}|p{\dimexpr\textwidth-5.1cm}|}
+    % --- EN-TÊTE DE LA PREMIÈRE PAGE ---
+    \hline
+    \rowcolor{ChapColor}
+    \textcolor{white}{\textbf{Terme}} & \textcolor{white}{\textbf{Définition}} \\ \hline
+    \endfirsthead
+
+    % --- EN-TÊTE DES PAGES SUIVANTES (Répétition) ---
+    \hline
+    \rowcolor{ChapColor}
+    \textcolor{white}{\textbf{Terme}} & \textcolor{white}{\textbf{Définition}} \\ \hline
+    \endhead
+
+    % --- PIED DE PAGE NORMAL ---
+    \hline
+    \endfoot
+
+    % --- PIED DE PAGE FINAL ---
+    \hline
+    \caption{Glossaire des termes techniques}
+    \label{tab:glossaire}
+    \endlastfoot
+
+    % --- CONTENU DU TABLEAU (Trié par ordre alphabétique de A à Z) ---
+    
+    \hypertarget{glo:1}{}\textbf{Asynchrone (Traitement)} & Mode de programmation où l'exécution d'une tâche ne bloque pas le déroulement du reste du programme. Utilisé dans le projet pour ne pas figer l'interface pendant que les modèles d'IA génèrent le contenu documentaire. \\ \hline
+    
+    \hypertarget{glo:2}{}\textbf{Backend} & Partie cachée d'une application web, s'exécutant sur le serveur. Elle gère la logique métier, l'orchestration des LLMs, l'accès à la base de données et la sécurité. \\ \hline
+    
+    \hypertarget{glo:3}{}\textbf{Conteneurisation} & Méthode de virtualisation au niveau du système d'exploitation permettant d'empaqueter une application et toutes ses dépendances dans une unité isolée et portable, garantissant un fonctionnement identique sur tout environnement. \\ \hline
+    
+    \hypertarget{glo:4}{}\textbf{Endpoint} & Point de terminaison (ou URL spécifique) d'une interface de programmation (API) sur lequel un client peut envoyer une requête pour accéder à une ressource ou déclencher une action. \\ \hline
+    
+    \hypertarget{glo:5}{}\textbf{Frontend} & Partie visible d'une application web avec laquelle l'utilisateur interagit directement à l'écran (interface, boutons, formulaires). \\ \hline
+    
+    \hypertarget{glo:6}{}\textbf{Hallucination (IA)} & Phénomène par lequel un modèle d'intelligence artificielle génère une information fausse, inventée ou illogique, tout en la présentant avec un ton de certitude absolue. \\ \hline
+    
+    \hypertarget{glo:7}{}\textbf{Intent (Intention)} & Dans le contexte de ce projet, directive ou instruction textuelle invisible pour l'utilisateur final, configurée par l'administrateur pour contraindre et guider le modèle d'IA dans sa rédaction. \\ \hline
+    
+    \hypertarget{glo:8}{}\textbf{Microservices} & Approche de développement architectural consistant à construire une application comme un ensemble de petits services indépendants, exécutant chacun un processus unique et communiquant via des requêtes réseau. \\ \hline
+    
+    \hypertarget{glo:9}{}\textbf{Modèle de langage} & Algorithme d'intelligence artificielle entraîné sur de vastes quantités de données textuelles, capable de comprendre, traduire, résumer et générer du langage naturel de manière contextuelle. \\ \hline
+    
+    \hypertarget{glo:10}{}\textbf{Parsing} & Action d'analyser syntaxiquement un fichier ou une chaîne de caractères (comme un fichier Excel) pour en extraire des données structurées et exploitables par le programme. \\ \hline
+    
+    \hypertarget{glo:11}{}\textbf{Prompt Chaining} & Technique consistant à lier plusieurs requêtes IA de manière séquentielle, où la réponse de la première requête sert de contexte ou d'entrée à la seconde, permettant de résoudre des tâches complexes par étapes. \\ \hline
+    
+    \hypertarget{glo:12}{}\textbf{Prompt Système} & Message d'instruction fondamental envoyé à une intelligence artificielle au début d'une session. Il définit le rôle, le ton, le format de sortie et les limites que l'IA doit strictement respecter. \\ \hline
+    
+    \hypertarget{glo:13}{}\textbf{Templating} & Procédé informatique consistant à fusionner un modèle statique (contenant des balises ou des variables) avec des données dynamiques pour générer automatiquement un document final personnalisé. \\ \hline
+    
+    \hypertarget{glo:14}{}\textbf{Worksheet} & Feuille de calcul issue d'un tableur (type Excel ou CSV). Dans ce projet, elle est utilisée par les ingénieurs pour injecter en masse des spécifications matérielles vers la plateforme. \\ 
+\end{longtable}
+
+
+% =========================================================
+% INTRODUCTION GÉNÉRALE
+% =========================================================
+\chapter*{Introduction Générale}
+\addcontentsline{toc}{chapter}{Introduction Générale}
+
+La transformation numérique touche aujourd’hui l’ensemble des secteurs stratégiques de l'économie, obligeant les Entreprises de Services du Numérique (ESN\acref{9}) et les intégrateurs IT à optimiser continuellement leurs processus internes. Chaque jour, les ingénieurs et consultants conçoivent des architectures complexes nécessitant la production de livrables techniques rigoureux (dossiers d'architecture, manuels d'exploitation) afin de garantir la bonne exécution des projets et la satisfaction des clients.
+
+Toutefois, cette exigence de qualité se heurte souvent à des contraintes opérationnelles chronophages. La difficulté de maintenir des modèles de documents homogènes, la saisie manuelle et répétitive des spécifications matérielles, ou encore le temps passé à rédiger des descriptions techniques standards, compromettent la productivité des équipes. Dans ce contexte, l’adoption d’une approche basée sur l'Intelligence Artificielle — qui intègre la puissance d'une orchestration multi-LLM (Large Language Models) — devient un atout stratégique pour moderniser et industrialiser la production documentaire.
+
+La problématique centrale de notre projet peut ainsi être formulée comme suit :
+
+\begin{quote}
+\textbf{\textit{« Comment concevoir et déployer une plateforme intelligente de génération documentaire, intégrant une architecture web moderne et une orchestration de modèles d'IA générative (OpenAI et Claude), afin d’automatiser la rédaction technique, structurer intelligemment les données et libérer les ingénieurs des tâches de formatage fastidieuses ? »}}
+\end{quote}
+
+Pour répondre à cette problématique, nous avons adopté une démarche progressive articulée autour de plusieurs étapes clés :
+
+\begin{itemize}
+    \item \textbf{Analyse et conception :} Étude des limites des processus documentaires actuels, définition des cas d'utilisation (rôles Ingénieur et Administrateur) et élaboration d’une architecture technique modulaire basée sur React.js, FastAPI et une base de données PostgreSQL.
+    
+    \item \textbf{Développement modulaire :} Implémentation des fonctionnalités de gestion des formulaires dynamiques et de l'extraction automatisée des données matérielles (via l'upload de fichiers Excel/Worksheet).
+    
+    \item \textbf{Orchestration Multi-LLM et Génération :} Mise en place d'un pipeline hybride faisant collaborer l'API\acref{1} OpenAI et le modèle Claude (Anthropic) pour la rédaction technique, la synthèse et la traduction contextuelle, le tout couplé au moteur de templating Jinja2 pour générer un document final standardisé.
+    
+    \item \textbf{Validation et ergonomie :} Réalisation d'une interface utilisateur intuitive et exécution de scénarios de tests pour valider la fluidité des flux asynchrones, la pertinence du texte généré via le prompt chaining, et le respect strict de la structure documentaire.
+\end{itemize}
+
+Enfin, la structure de ce rapport se décline comme suit :
+
+\begin{itemize}
+    \item \textbf{Le premier chapitre} présente le contexte général du projet au sein de l'entreprise d'accueil (CBI), la méthodologie de travail adoptée (Scrum) ainsi que la planification temporelle (diagramme de Gantt).
+    
+    \item \textbf{Le deuxième chapitre} est consacré à l'analyse de l'existant, à la définition des besoins fonctionnels et non fonctionnels, ainsi qu'à l'étude comparative justifiant le passage de processus documentaires manuels vers une solution hybride automatisée par des LLMs.
+    
+    \item \textbf{Le troisième chapitre} décrit la phase de conception technique et logicielle, en s'appuyant sur la modélisation UML\acref{39} (diagrammes de cas d'utilisation, de classes, de séquence et d'activités) pour cartographier le comportement du système.
+    
+    \item \textbf{Le quatrième chapitre} détaille l'étude technique en présentant l'environnement de développement et en justifiant les choix technologiques majeurs (FastAPI, React.js, PostgreSQL, Docker, Jinja2) qui constituent le socle de la plateforme.
+    
+    \item \textbf{Le cinquième chapitre} est consacré à l'implémentation et à la réalisation. Il met en lumière le développement des interfaces utilisateurs (Front-Office et Back-Office), l'automatisation concrète du pipeline de génération via l'orchestration multi-LLM, ainsi que le déploiement sécurisé de la solution.
+\end{itemize}
+
+Une conclusion générale synthétisera les résultats obtenus, les apports de ce travail pour l'entreprise et les perspectives d'évolution pour la plateforme DocuGen AI.
+
+
+
+% ============================================================
+% CHAPITRE 1
+% ============================================================
+
+
+\chapter{Présentation et contexte du projet}
+
+\section*{Introduction}
+Ce chapitre présente l'entreprise d'accueil, CBI\acref{2} (Compagnie Bureautique et Informatique), dans le cadre de mon projet de fin d'études\acref{25}. Il couvre son identité, ses domaines d'intervention en technologies de l'information\acref{15}, sa structure organisationnelle, ses métiers, son organigramme et ses implantations, afin de situer le contexte du projet.
+
+\section{Présentation de l’entreprise d’accueil}
+
+\subsection{Présentation générale de CBI\acref{2}}
+CBI (Compagnie Bureautique et Informatique) est une entreprise marocaine spécialisée dans les technologies de l'information. Elle opère dans l'intégration de solutions d'infrastructure IT\acref{15}, les services cloud, la virtualisation, la cybersécurité et la gestion des systèmes informatiques. Fondée en 1970 par M. Kamil Benjelloun, CBI accompagne les grandes entreprises et institutions publiques marocaines et africaines dans leur transformation digitale.
+
+% Figure 1
+\begin{figure}[H]
+    \centering
+    % Remplacer 'logo_cbi.png' par le nom de votre fichier image
+    \includegraphics[width=0.4\textwidth]{logo_cbi.png} 
+    \caption{Logo de l’organisme d’accueil}
+    \label{fig:logo_cbi}
+\end{figure}
+
+% --- NUMÉROTATION ARABE POUR LE CORPS ---
+\pagenumbering{arabic}
+
+CBI se distingue par son expertise technique, la qualité de ses prestations, et sa capacité à intégrer des solutions complexes en environnement professionnel. Elle collabore avec des éditeurs et fabricants technologiques de renom, comme VMware, Cisco, Microsoft, Dell, etc., ce qui lui permet d’offrir des solutions à la pointe de la technologie.
+
+L’organisation interne de CBI repose sur plusieurs pôles complémentaires : un pôle technique (administration systèmes, réseaux, cloud), un pôle commercial, un pôle projets, un pôle R\&D et un département de support et services managés. Cette organisation permet une répartition claire des responsabilités et une gestion efficace des projets clients.
+
+\subsection{Fiche technique de l’entreprise}
+
+% Figure 2
+\begin{figure}[H]
+    \centering
+    % Remplacer 'fiche_technique.png' par le nom de votre fichier image
+    \includegraphics[width=0.9\textwidth]{fiche_technique.png} 
+    \caption{Fiche technique de CBI\acref{2}}
+    \label{fig:fiche_technique}
+\end{figure}
+
+\subsection{Les valeurs de l’entreprise}
+CBI place les valeurs au cœur de son ADN. Elles constituent le socle sur lequel repose sa structure et son organisation : elles guident sa stratégie et ses activités, inspirent et animent ses collaborateurs. Tous y adhèrent pleinement et en font leur ligne de conduite au quotidien. Elle est ouverte et à l’écoute des autres, plaçant les problématiques de ses clients au cœur de ses préoccupations pour apporter une expertise qui répond précisément à leurs attentes et à leurs besoins. 
+
+CBI instaure une relation de confiance et de partenariat durable avec tout son écosystème, qu’il s’agisse de ses clients, de ses fournisseurs et prestataires ou de ses collègues. Elle est porteuse de valeur ajoutée et de nouveautés, moteur de solutions efficientes et productives, en faisant preuve de créativité et d’inventivité tant dans son métier qu’en termes d’organisation et de méthodes de travail. 
+
+CBI travaille avec conviction, donnant du sens à ce qu’elle fait, ayant envie d’accomplir, de matérialiser et s’engageant pleinement afin de faire de chaque action, de chaque projet, une pleine réussite. Elle fait de chaque rencontre une richesse par l’échange de connaissances et d’expériences, s’armant des meilleures compétences et se formant aux dernières technologies pour partager son savoir-faire et son expertise, grandir et faire grandir avec soi. Elle veille à l’harmonie de sa relation avec les autres en déployant son savoir-faire dans le cadre d’un savoir être, en recherchant l’épanouissement individuel dans ses actions collectives et en s’attachant à toujours délivrer de la pertinence pour ses clients, ses partenaires et ses collègues.
+
+\subsection{Les métiers de l’entreprise}
+CBI offre une palette complète de métiers et d’expertises couvrant l’ensemble des besoins du monde numérique d’aujourd’hui. Du conseil en informatique à la formation en passant par l’intégration de solutions informatiques, le développement d’applications et de logiciels, l’infogérance et le Cloud Computing, la cybersécurité, CBI accompagne ses clients dans leur transformation digitale et leur garantit une expertise.
+
+La liste des clients prestigieux de CBI témoigne de la confiance que lui accordent les acteurs majeurs de l’économie marocaine et africaine. Maroc Telecom, Attijariwafa Bank, LafargeHolcim Maroc, OCP, ONEE, Sonatel (Sénégal), Ecobank et BNP Paribas (France) ne sont que quelques exemples des entreprises qui font appel à l’expertise de CBI pour relever leurs défis et atteindre leurs objectifs.
+
+% Figure 3
+\begin{figure}[H]
+    \centering
+    % Remplacer 'metiers_cbi.png' par le nom de votre fichier image
+    \includegraphics[width=0.8\textwidth]{metiers_cbi.png} 
+    \caption{Les métiers de CBI}
+    \label{fig:metiers_cbi}
+\end{figure}
+
+Les consultants CBI accompagnent les entreprises dans le cadre des différentes missions et mettent à leur disposition toute leur expertise acquise lors des différents projets pilotés sur différents secteurs. CBI possèdent aussi une grande équipe technique afin de garantir un bon déploiement de ses solutions. Elle suggère aussi des formations à ses clients afin de garantir la mise à jour des connaissances de ses clients. Les services proposés par CBI se résument comme suit :
+
+\begin{itemize}
+    \item Conseil / Audit
+    \item Mise en place d’infrastructures
+    \item Suivi des projets de développement et d’implémentation
+    \item Transfert des compétences
+\end{itemize}
+
+\subsection{Organigramme de CBI}
+CBI, un organisme axé sur la productivité, présente une structure organisationnelle détaillée pour optimiser ses opérations. La gestion générale est au cœur de l’organigramme général, supervisant des fonctions clés telles que le bureau de gestion de projet, le marketing, la communication, et les filiales WECA. La direction générale est épaulée par un directeur général adjoint qui supervise plusieurs départements, dont les solutions et services, le centre de support et services, les ventes, les services professionnels, et le support.
+
+En ce qui concerne le département des services professionnels, il est dirigé par un directeur des services professionnels qui coordonne des consultants experts et une équipe de back office. Ce département est subdivisé en plusieurs sections spécialisées, incluant les réseaux d’entreprise et sans fil, la sécurité et la collaboration, les systèmes et infrastructures, l’intégration et les opérations WECA.
+
+% Figure 4
+\begin{figure}[H]
+    \centering
+    % Remplacer 'organigramme.png' par le nom de votre fichier image
+    \includegraphics[width=0.9\textwidth]{organigramme.png} 
+    \caption{Organigramme général}
+    \label{fig:organigramme}
+\end{figure}
+
+\subsection{Implantations de l’entreprise}
+CBI s’est doté d’un réseau d’implantations judicieusement réparties, tant au Maroc qu’à l’international, pour garantir une proximité optimale avec ses clients et une meilleure compréhension de leurs besoins spécifiques.
+
+Au Maroc, la société dispose d’une présence effective dans les principales régions économiques du pays, à travers ses agences de Casablanca, Rabat-Salé-Kénitra, Tanger, Fès, Marrakech et Agadir. Cette couverture géographique étendue permet à CBI d’être au plus près de ses clients marocains et de leur offrir une réactivité et un accompagnement sur mesure, .
+
+En Afrique, CBI a choisi de s’implanter stratégiquement au Sénégal et en Côte d’Ivoire, deux pays clés pour le développement économique du continent. Ces implantations lui permettent de rayonner sur l’ensemble de l’Afrique de l’Ouest et Centrale, et de répondre aux besoins croissants des entreprises locales en matière de solutions informatiques et digitales. Cette expansion stratégique permet à CBI de jouer un rôle actif dans le développement du numérique en Afrique .
+
+CBI ne compte pas s’arrêter là et envisage d’étendre son réseau d’implantations à d’autres pays d’Afrique dans les années à venir. L’objectif est de poursuivre sa croissance et de devenir un acteur incontournable du paysage numérique africain, en offrant à ses clients une expertise, un service de proximité .
+
+% Figure 5
+\begin{figure}[H]
+    \centering
+    % Remplacer 'implantations.png' par le nom de votre fichier image
+    \includegraphics[width=0.8\textwidth]{implantations.png} 
+    \caption{Les implantations de l’entreprise}
+    \label{fig:implantations}
+\end{figure}
+
+\subsection{Historique}
+Le paysage historique de la société est sous le signe de 50 ans d'innovation, qu'on peut illustrer sous forme de différentes dates clés :
+
+% Figure 6
+\begin{figure}[H]
+    \centering
+    % Remplacer 'historique.png' par le nom de votre fichier image
+    \includegraphics[width=0.9\textwidth]{historique.png} 
+    \caption{Historique de la CBI}
+    \label{fig:historique}
+\end{figure}
+
+\section{Cadre du projet}
+
+\subsection{Description du projet}
+Dans le cadre d’un stage de fin d’études au sein de l’entreprise CBI (Compagnie Bureautique et Informatique), un projet stratégique a été lancé au sein du département des services professionnels, sous la supervision de Monsieur Driss Bennattou, directeur du service.
+
+Ce projet porte sur la conception et la mise en œuvre d’une plateforme interne automatisée de génération de documents techniques basée sur l'Intelligence Artificielle. Il vise à répondre au besoin croissant des équipes techniques de produire, de manière rapide, standardisée et autonome, des livrables complexes tels que des dossiers d'architecture ou des manuels d'exploitation.
+
+L’objectif est de développer une plateforme centralisée, évolutive et intelligente (\textbf{DocuGen AI}), permettant la création dynamique de formulaires, l'extraction de données matérielles, la rédaction assistée par IA, et la génération automatique de documents PDF structurés.
+
+La solution repose sur une architecture moderne micro-services, construite autour d'un backend FastAPI et d'un frontend React, sur laquelle vient se greffer une orchestration hybride de LLMs (OpenAI et Claude). Celle-ci introduit des fonctionnalités avancées de traitement du langage naturel, de gestion des droits d’accès (Ingénieur, Administrateur), et de formatage documentaire industriel.
+
+Au-delà de sa dimension fonctionnelle, ce projet s’inscrit dans une démarche globale de modernisation des processus IT\acref{15}, en promouvant l’automatisation, l’efficience opérationnelle et la standardisation des livrables techniques. Il a été mené selon une approche agile, favorisant l’adaptabilité, les livrables incrémentaux, et une collaboration étroite avec les équipes encadrantes.
+
+Par sa transversalité et son impact direct sur la performance opérationnelle, cette plateforme peut améliorer concrètement l'organisation des services internes de CBI.
+
+\subsection{Axes du Projet}
+Le projet a été structuré selon trois axes, pilotés dans une logique de gestion de projet agile. Chaque axe représente une phase dans la réalisation progressive de la plateforme :
+
+\begin{itemize}
+    \item \textbf{Étude comparative et choix des technologies :} \\
+    Cette première phase a consisté à analyser différentes solutions techniques disponibles (processus manuels vs génération automatisée, choix de l'orchestration LLM), afin d’identifier les outils les plus adaptés aux contraintes d’une génération documentaire automatisée et professionnelle.
+    
+    \item \textbf{Conception et développement de la plateforme :} \\
+    Une fois les choix technologiques validés (FastAPI, React, PostgreSQL), l’architecture fonctionnelle et technique a été modélisée. Cette étape a abouti au développement d’un système modulaire, basé sur une API\acref{1} REST robuste, un moteur de templating Jinja2 pour la structuration dynamique des documents, et une interface utilisateur permettant l'upload de worksheets (Excel).
+    
+    \item \textbf{Intégration et sécurisation (On-premise / Cloud privé) :} \\
+    Enfin, la solution a été intégrée dans l’infrastructure de l’entreprise. Cette phase a permis de garantir un déploiement sécurisé (gestion des Prompts Systèmes), stable et performant dans un environnement de production maîtrisé.
+\end{itemize}
+
+L’ensemble de ces axes est encadré par une gestion de projet continue, assurant la planification, le suivi des sprints, la coordination des acteurs et le respect des livrables.
+
+% Placeholder pour la figure 7
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{axes_projet.png}
+    \caption{Axes de structuration du projet et cycle de réalisation}
+    \label{fig:axes_projet}
+\end{figure}
+
+\section{Contexte du projet}
+
+\subsection{Étude de l’existant}
+Actuellement, l’entreprise dispose de processus de rédaction documentaire reposant principalement sur des traitements de texte classiques (Microsoft Word). Ces documents sont utilisés à des fins de livraison client, de documentation interne, et de validation d'architecture.
+
+Toutefois, chaque document est créé, formaté et rempli manuellement par les ingénieurs et consultants, ce qui entraîne de nombreuses contraintes :
+\begin{itemize}
+    \item Une perte de temps significative pour la mise en page, l'intégration des schémas et la rédaction de paragraphes répétitifs.
+    \item Un risque d’erreurs humaines (fautes de frappe, copier-coller d'anciennes architectures, erreurs sur les spécifications matérielles).
+    \item Un manque d'homogénéité visuelle et structurelle entre les livrables des différents collaborateurs.
+    \item Une gestion inefficace des données matérielles, obligeant l'ingénieur à chercher manuellement les caractéristiques (CPU\acref{4}, RAM\acref{30}) au lieu de se baser sur un ID Hardware.
+    \item Des problèmes de réutilisabilité et de mise à jour des "Templates" de base, souvent altérés par erreur par les utilisateurs.
+\end{itemize}
+
+Enfin, l’absence d’automatisation dans les processus actuels limite fortement la rapidité de livraison des projets et alourdit la charge de travail des équipes IT, qui passent un temps précieux sur du formatage au lieu de se concentrer sur l'ingénierie à forte valeur ajoutée.
+
+Ces constats soulignent la nécessité de mettre en place une plateforme automatisée de génération documentaire, capable de centraliser les modèles, d'optimiser la saisie des données, et de déléguer la rédaction standardisée à une Intelligence Artificielle sous contrôle.
+
+\subsection{Problématique}
+La gestion actuelle de la documentation technique repose sur des processus entièrement manuels, ce qui entraîne une consommation excessive de temps, une dépendance forte aux compétences rédactionnelles des équipes techniques et un manque de réactivité face aux exigences croissantes des clients.
+
+Cette approche présente plusieurs limites :
+\begin{itemize}
+    \item \textbf{Faible agilité :} La rédaction complète d'un dossier d'architecture prend un temps considérable, ce qui freine les cycles de livraison du projet.
+    \item \textbf{Qualité inconstante :} Sans moteur de templating strict et sans assistance intelligente à la rédaction, la qualité du livrable varie fortement d'un consultant à l'autre.
+    \item \textbf{Évolutivité limitée :} Le système actuel ne peut pas s’adapter facilement à une augmentation du volume de projets sans alourdir proportionnellement la charge administrative des équipes.
+\end{itemize}
+
+En l’absence d’automatisation et d’interface dédiée, la production documentaire devient un frein opérationnel qui impacte directement l’efficacité et la qualité perçue par le client final.
+
+\subsection{Solution proposée}
+Afin de pallier les limites de la gestion actuelle, il est proposé de développer une plateforme web intelligente et automatisée dédiée à la génération de documents techniques. Cette plateforme aura pour objectif de simplifier, centraliser et automatiser l’ensemble du cycle de vie documentaire.
+
+La solution prendra la forme d’un portail web sécurisé, qui permettra aux utilisateurs d’effectuer, en toute autonomie et selon leurs rôles, les actions suivantes :
+
+\begin{itemize}
+    \item \textbf{Pour les Administrateurs :} Créer des technologies, uploader des modèles de documents structurés, concevoir des formulaires dynamiques et définir les "Intents"\gloref{7} (directives cachées) pour guider l'IA.
+    \item \textbf{Pour les Ingénieurs :} Remplir des formulaires techniques simplifiés, uploader des fichiers Worksheet (Excel/CSV) pour l'extraction automatique des spécifications matérielles via Hardware ID, et solliciter l'IA pour rédiger le contenu complexe.
+    \item \textbf{Génération Automatisée :} Bénéficier d'un assemblage dynamique où l'IA traduit et rédige le contenu, qui est ensuite formaté dynamiquement via le moteur de templating pour générer un document final standardisé, inaltérable et respectant la charte graphique.
+    \item \textbf{Gestion Centralisée :} Permettre aux Administrateurs de gérer les rôles et les droits d’accès des utilisateurs pour garantir la sécurité et la cohérence de la plateforme.
+\end{itemize}
+
+La plateforme sera conçue pour s’intégrer naturellement aux flux de travail des équipes, tout en introduisant une couche d’intelligence artificielle qui permettra d’améliorer l'efficacité opérationnelle, de réduire la charge manuelle des équipes IT, et de garantir des livrables de bonne qualité.
+
+\subsection{Méthodologie adaptée}
+Tout projet informatique requiert une méthodologie de travail et un processus de développement bien définis pour assurer son succès, car un mauvais choix du processus de développement peut largement affecter le sort du projet, voire conduire à l’échec. Dans ce contexte, CBI a jugé que la Méthode de Scrum était la mieux adaptée pour garantir le bon déroulement du projet.
+
+\subsubsection{Méthode de Scrum}
+La méthode Scrum est un cadre de travail agile largement utilisé dans le développement logiciel. Elle se concentre sur l'organisation de l'équipe de développement afin d'atteindre les objectifs du projet de manière collaborative. Scrum favorise la transparence, l'adaptation et la flexibilité face aux changements qui peuvent survenir tout au long du projet.
+
+Le principal élément de Scrum est le "sprint", une itération courte et fixe de travail, généralement d'une durée de deux à quatre semaines. Pendant chaque sprint, l'équipe Scrum travaille pour terminer une quantité de travail définie. Les sprints sont au cœur des méthodologies Scrum et Agile. Travailler sur des sprints bien définis permet à une équipe Agile de livrer des résultats de manière plus efficace et efficiente. Chaque sprint est suivi d'une revue et d'une rétrospective pour évaluer les résultats obtenus et identifier les améliorations possibles.
+
+% Placeholder pour la figure 8
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Méthodologie Scrum.png}
+    \caption{Méthodologie Scrum}
+    \label{fig:Méthodologie Scrum}
+\end{figure}
+
+\textbf{Les Cérémonies Scrum :}
+\begin{itemize}
+    \item \textbf{Sprint Planning :} Cette réunion marque le début de chaque sprint. L’équipe de développement et le Product Owner se réunissent pour définir les objectifs du sprint et sélectionner les éléments du backlog produit à réaliser.
+    \item \textbf{Daily Stand-Up :} Il s'agit d'une réunion quotidienne courte où chaque membre de l’équipe répond à trois questions clés : Qu’ai-je fait hier ? Que vais-je faire aujourd’hui ? Quels obstacles ai-je rencontrés ?
+    \item \textbf{Sprint Review :} À la fin du sprint, l’équipe présente les éléments réalisés aux parties prenantes. Cette réunion permet de recueillir des retours (feedbacks) et de démontrer les progrès accomplis.
+    \item \textbf{Sprint Retrospective :} Juste après la revue du sprint, l’équipe se réunit pour réfléchir à l’itération passée. Cette rétrospective permet d'identifier ce qui a bien fonctionné et ce qui pourrait être amélioré pour les futurs sprints.
+\end{itemize}
+
+% Placeholder pour la figure 9
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Cérémonies Scrum.png}
+    \caption{Cérémonies Scrum}
+    \label{fig:Cérémonies Scrum}
+\end{figure}
+
+\textbf{Application de Scrum dans le Projet :}
+Les méthodes de travail de CBI comportent des réunions et un suivi continu de l’avancement des projets, le tout pour garantir une certaine qualité et le respect des besoins et des attentes. Par conséquent, toutes les bonnes pratiques suivantes seront utilisées :
+\begin{itemize}
+    \item Diviser le projet en plusieurs sprints,
+    \item Décomposer chaque sprint en une série de tâches,
+    \item Rencontrer quotidiennement le superviseur pour suivre les progrès.
+\end{itemize}
+
+Nous organisons une réunion hebdomadaire tous les Mercredis où nous essayons de répondre aux trois questions suivantes : Quelles tâches sont effectuées ? Quels obstacles ont été rencontrés ? Quelles tâches devront être accomplies à l’avenir ?
+
+\subsubsection{Suivi du projet par découpage en sprints}
+Afin de garantir un avancement structuré, cohérent et progressif du projet, une planification par sprints a été adoptée. Chaque sprint correspond à une période de deux semaines, durant laquelle un ensemble de tâches spécifiques a été défini, développé et livré. Cette approche a permis de découper le projet en blocs fonctionnels gérables, tout en assurant une visibilité continue sur l’état d’avancement. 
+
+Le tableau ci-dessous récapitule les objectifs de chaque sprint depuis le lancement du projet jusqu’à sa phase de finalisation pour la plateforme DocuGen AI.
+
+\begin{longtable}{|p{2.5cm}|p{5cm}|p{\dimexpr\textwidth-8.6cm}|}
+    % --- EN-TÊTES ---
+    \hline
+    \rowcolor{SecColor}
+    \textcolor{white}{\textbf{Sprint}} &\textcolor{white}{\textbf{Période}} &\textcolor{white}{\textbf{Objectifs principaux}} \\ \hline
+    \endfirsthead
+
+    \hline
+    \rowcolor{SecColor}
+    \textcolor{white}{\textbf{Sprint}} &\textcolor{white}{\textbf{Période}} &\textcolor{white}{\textbf{Objectifs principaux}} \\ \hline
+    \endhead
+
+    % --- PIED DE PAGE NORMAL (si le tableau s'étale sur 2 pages) ---
+    \hline
+    \endfoot
+
+    % --- PIED DE PAGE FINAL (Légende intégrée proprement sans bordures) ---
+    \hline
+    \caption{Planification et suivi des sprints du projet DocuGen AI} 
+    \label{tab:sprints}
+    \endlastfoot
+
+    % --- CONTENU DU TABLEAU ---
+    \textbf{Sprint 1} & 03/03 - 17/03 & Identification de la problématique, compréhension du besoin métier, conception des diagrammes UML. \\ \hline
+    
+    \textbf{Sprint 2} & 18/03 - 31/03 & Proposition de solution, choix des technologies (React, FastAPI), définition de l’architecture cible. \\ \hline
+    
+    \textbf{Sprint 3} & 01/04 - 14/04 & Modélisation de la base de données (PostgreSQL) et conception de l'architecture des templates de documents (Jinja2). \\ \hline
+    
+    \textbf{Sprint 4} & 15/04 - 28/04 & Développement de l’interface Administrateur (Gestion des technos, upload de modèles de base, configuration des formulaires). \\ \hline
+    
+    \textbf{Sprint 5} & 29/04 - 12/05 & Développement de l'interface Ingénieur (Formulaires dynamiques, upload de Worksheet Excel). \\ \hline
+    
+    \textbf{Sprint 6} & 13/05 - 26/05 & Implémentation du backend : Parsing Excel, Lookup des IDs Hardware, et logique des "Intents" IA. \\ \hline
+    
+    \textbf{Sprint 7} & 27/05 - 09/06 & Intégration de l'orchestration LLM (Prompt engineering) et mise en place du pipeline de formatage et de génération PDF. \\ \hline
+    
+    \textbf{Sprint 8} & 10/06 - 30/06 & Mise en place de la gestion fine des rôles (RBAC\acref{31}) et sécurisation des accès à la plateforme. \\ \hline
+    
+    \textbf{Sprint 9} & 01/07 - 31/07 & Tests fonctionnels, optimisation des prompts IA, débogage et validation des cas d’usage réels avec l'équipe. \\ 
+\end{longtable}
+
+\subsubsection{Planification du projet}
+La planification du projet structure le déroulement des travaux. Elle organise les phases selon une logique temporelle, en définissant les tâches, leurs enchaînements, leurs durées et leurs objectifs. 
+
+Le projet a été découpé en plusieurs étapes, de l'étude initiale à la finalisation. Chaque phase correspond à une période précise avec des livrables définis. Le diagramme de Gantt ci-dessous illustre cette planification.
+
+% Placeholder pour la figure 10
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth, height=10cm]{Diagramme de Gantt.png}
+    \caption{Diagramme de Gantt du Projet DocuGen AI}
+    \label{fig:gantt}
+\end{figure}
+
+Ce diagramme de Gantt représente la planification globale du projet. Chaque barre horizontale correspond à une tâche, visualisant sa période d'exécution sur l'ensemble du calendrier. Ce planning permet de suivre l'avancement, d'identifier les chevauchements entre les activités et de gérer les délais.
+
+% =======================================================
+% CONCLUSION DU CHAPITRE
+% =======================================================
+\section*{Conclusion du chapitre}
+\addcontentsline{toc}{section}{Conclusion du chapitre}
+
+Ce premier chapitre a posé le cadre général du projet de fin d'études en présentant l'entreprise d'accueil (CBI), ses activités, et les enjeux liés à la solution envisagée pour la production documentaire. Il a aussi introduit le contexte du projet, des limites des processus manuels actuels (Word) aux objectifs de la nouvelle plateforme (\textbf{DocuGen AI}). 
+
+Les axes de travail et la méthodologie agile Scrum choisie pour sa mise en œuvre ont été détaillés, avec une planification structurée par des sprints et un diagramme de Gantt. Le chapitre suivant aborde l'analyse approfondie et la conception technique de l'architecture logicielle.
+
+% =======================================================
+% CHAPITRE 2
+% =======================================================
+\chapter{Analyse de l'existant et Spécifications}
+
+\section*{Introduction}
+\addcontentsline{toc}{section}{Introduction}
+Ce chapitre analyse les limitations du système de production documentaire existant chez CBI, formule la problématique, et propose une solution adaptée. Il présente aussi les objectifs du projet, les besoins fonctionnels et techniques, ainsi qu'un benchmark des technologies envisagées pour guider la phase de conception.
+
+\section{Problématique}
+La rédaction des documents techniques (dossiers d'architecture, manuels d'exploitation) actuellement en place chez CBI est gérée de manière entièrement manuelle. Les ingénieurs doivent utiliser des logiciels de traitement de texte standards, copier-coller d'anciennes architectures, formater les pages et saisir manuellement les spécifications matérielles, ce qui entraîne une perte de temps considérable et mobilise inutilement les ressources humaines sur des tâches à faible valeur ajoutée.
+
+Mais au-delà des aspects organisationnels, des problèmes critiques de qualité et de cohérence ont été identifiés dans ce processus. En l’absence de mécanismes d’automatisation et de standardisation stricte, de nombreux documents souffrent de défauts majeurs :
+\begin{itemize}
+    \item Une détérioration progressive des modèles (Templates) de base, souvent altérés par des erreurs de manipulation humaine.
+    \item Une incohérence dans les spécifications matérielles saisies, causée par l'absence de lien direct avec une base de données Hardware (erreurs sur la RAM, le CPU, etc.).
+    \item Et une dégradation globale de l'homogénéité visuelle des livrables envoyés aux clients.
+\end{itemize}
+
+Ces dérives ont été fréquemment constatées, comme en témoignent les nombreux retours clients exigeant des corrections sur le formatage ou la mise à jour des données matérielles.
+
+Pour mieux illustrer cette problématique, on observe souvent des ingénieurs confrontés à des tableaux de spécifications incomplets ou à des sauts de page non maîtrisés. La capacité de l'entreprise à produire rapidement des livrables de haute qualité est très limitée, ce qui peut provoquer des retards de livraison sur des projets critiques. 
+
+Ces symptômes sont le résultat direct d’un manque d’automatisation : la rédaction n'est pas assistée, les données ne sont pas centralisées, et il n’existe aucun mécanisme intelligent pour valider le contenu avant la génération finale. L'urgence de mettre en place une plateforme de génération automatisée est donc avérée.
+
+\section{Solution}
+Afin de pallier les limites de la gestion actuelle, il est proposé de développer une plateforme web intelligente et automatisée dédiée à la génération de documents techniques. Cette plateforme aura pour objectif de simplifier, centraliser et automatiser l’ensemble du cycle de vie documentaire.
+
+La solution prendra la forme d’un portail web sécurisé, qui permettra aux utilisateurs d’effectuer, en toute autonomie et selon leurs rôles, les actions suivantes :
+
+\begin{itemize}
+    \item \textbf{Pour les Administrateurs :} Créer des technologies, uploader des modèles de documents structurés, concevoir des formulaires dynamiques et définir les "Intents"\gloref{7} (directives cachées) pour guider l'IA.
+    \item \textbf{Pour les Ingénieurs :} Remplir des formulaires techniques simplifiés, uploader des fichiers Worksheet (Excel/CSV) pour l'extraction automatique des spécifications matérielles via Hardware ID, et solliciter l'IA pour rédiger le contenu complexe.
+    \item \textbf{Génération Automatisée :} Bénéficier d'un assemblage dynamique où l'IA traduit et rédige le contenu, qui est ensuite formaté dynamiquement via le moteur de templating pour générer un document final standardisé, inaltérable et respectant la charte graphique.
+    \item \textbf{Gestion Centralisée :} Permettre aux Administrateurs de gérer les rôles et les droits d’accès des utilisateurs pour garantir la sécurité et la cohérence de la plateforme.
+\end{itemize}
+
+La plateforme sera conçue pour s’intégrer naturellement aux flux de travail des équipes, tout en introduisant une couche d’intelligence artificielle qui permettra d’améliorer l'efficacité opérationnelle, de réduire la charge manuelle des équipes IT, et de garantir des livrables de bonne qualité.
+
+\section{Objectifs du projet}
+Le projet vise à concevoir et développer une solution innovante de génération documentaire, capable de répondre aux exigences de rapidité, de standardisation et d’assistance intelligente. 
+
+\subsection{Objectifs fonctionnels}
+\begin{itemize}
+    \item \textbf{Automatiser la rédaction technique :} Réduire les saisies manuelles grâce à l'orchestration IA qui génère, traduit et adapte le texte selon le contexte du projet (Prompt Chaining\gloref{11}).
+    \item \textbf{Intégrer l'extraction de données massives :} Permettre le chargement de Worksheets pour auto-compléter les architectures matérielles sans erreur humaine.
+    \item \textbf{Garantir un rendu professionnel :} Produire des fichiers standardisés et normés via un moteur de templating dynamique, évitant les problèmes de mise en page manuelle.
+    \item \textbf{Structurer les rôles et les droits d’accès :} Différencier les capacités d’action selon les profils (Ingénieur, Administrateur).
+\end{itemize}
+
+\subsection{Objectifs techniques}
+\begin{itemize}
+    \item \textbf{Centraliser les opérations sur une plateforme web :} Regrouper toutes les fonctionnalités dans une application Single Page Application (React) couplée à une API\acref{1} REST (FastAPI).
+    \item \textbf{Piloter efficacement les moteurs IA :} Concevoir des pipelines de Prompt Chaining stricts pour limiter les hallucinations et garantir une sortie structurée (JSON/XML) exploitable par le système.
+    \item \textbf{Garantir la sécurité des données :} Protéger les accès via authentification JWT et sécuriser les échanges de données avec les API d'OpenAI et Claude.
+    \item \textbf{Préparer une solution évolutive :} Concevoir un système micro-services modulable, capable d’intégrer facilement de nouveaux modèles IA ou de nouveaux formats de sortie à l'avenir.
+\end{itemize}
+
+\section{Analyse des besoins}
+La mise en œuvre d’une plateforme automatisée de génération documentaire requiert l’identification précise des besoins. 
+
+\subsection{Besoins fonctionnels}
+\begin{itemize}
+    \item Permettre à un Administrateur de créer des Technologies et d'y associer des structures de modèles documentaires (templates Jinja2).
+    \item Permettre à l'Administrateur de concevoir des formulaires dynamiques avec des questions (Texte, QCM, ID Hardware) et de définir l'intention de l'IA ("Intent").
+    \item Permettre à un Ingénieur de sélectionner un formulaire, de l'ajuster (suppression de sections) et d'y répondre.
+    \item Permettre le téléchargement d'un fichier Excel (Worksheet\gloref{14}) pour auto-peupler les sections du formulaire.
+    \item Assembler les réponses de l'ingénieur, les données extraites et le texte généré par les LLMs en un document final via le moteur de templating.
+    \item Gérer la traduction automatique du document généré vers la langue choisie par l'ingénieur.
+\end{itemize}
+
+\subsection{Besoins non fonctionnels}
+\begin{itemize}
+    \item \textbf{Sécurité :} Assurer l’authentification des utilisateurs et la protection des données sensibles envoyées aux API tierces (OpenAI, Anthropic).
+    \item \textbf{Performance :} Réduire le temps de traitement de l'orchestration multi-LLM et de génération documentaire via des flux asynchrones.
+    \item \textbf{Ergonomie :} Proposer une interface claire permettant de configurer facilement les pipelines IA et de prévisualiser les documents.
+    \item \textbf{Traçabilité :} Enregistrer toutes les opérations critiques dans un journal d’audit inaltérable.
+\end{itemize}
+
+\section{Étude comparative des technologies}
+Avant de procéder à la conception, une étude comparative des principales approches de génération documentaire a été menée. Cette étape a permis d’évaluer l'approche traditionnelle (Microsoft Word) face à l'approche innovante proposée par le projet (Orchestration IA + Templating).
+
+% -------------------------------------------------------
+% TABLEAU 1 : ETUDE COMPARATIVE (Format Longtable 3 colonnes)
+% Col 1: 3cm | Col 2: 5cm | Col 3: Reste de la page
+% -------------------------------------------------------
+\begin{longtable}{|p{3cm}|p{5cm}|p{\dimexpr\textwidth-8.8cm}|}
+    % --- EN-TÊTES ---
+    
+    \hline
+    \rowcolor{SecColor}
+    \textcolor{white}{\textbf{Critère}} &\textcolor{white}{\textbf{MS Word (Existant)}} &\textcolor{white}{\textbf{IA + Templating (DocuGen)}} \\ \hline
+    \endfirsthead
+
+    \hline
+    \rowcolor{SecColor}
+    \textcolor{white}{\textbf{Critère}} &\textcolor{white}{\textbf{MS Word (Existant)}} &\textcolor{white}{\textbf{IA + Templating (DocuGen)}} \\ \hline
+    \endhead
+    % --- PIEDS DE PAGE ---
+    \hline
+    \endfoot
+
+    \hline
+    \caption{Étude comparative entre l'existant (MS Word) et la solution DocuGen AI} 
+    \label{tab:etude_comparative}
+    \endlastfoot
+
+    % --- CONTENU ---
+    \textbf{Mise en page} & Manuelle, instable lors d'ajouts d'images ou de sauts de page. & Automatique et structurée par des modèles (Jinja2) garantissant l'homogénéité. \\ \hline
+    
+    \textbf{Rédaction} & Entièrement humaine, chronophage et sujette au syndrome de la page blanche. & Assistée par une orchestration multi-LLM (OpenAI/Claude). Génération experte et structurée. \\ \hline
+    
+    \textbf{Intégration SI} & Faible. Obligation de copier-coller les données matérielles. & Native via API. Parsing direct des Worksheets Excel et requêtes BDD. \\ \hline
+    
+    \textbf{Sécurité / Intégrité} & Fichiers locaux vulnérables aux altérations accidentelles. & Centralisée. L'Administrateur gère et protège l'intégrité des modèles documentaires. \\ \hline
+    
+    \textbf{Multilinguisme} & Nécessite de réécrire ou payer un traducteur externe. & Traduction contextuelle intégrée à la volée par les modèles d'Intelligence Artificielle. \\ 
+    % Ligne finale gérée par \endlastfoot
+\end{longtable}
+
+Suite à cette analyse, le choix s’est naturellement porté sur l'architecture \textbf{IA + Templating}, car elle élimine les problèmes de mise en forme manuelle tout en accélérant drastiquement la phase de rédaction grâce à l'orchestration de modèles génératifs.
+
+\section{Architecture fonctionnelle}
+L’architecture fonctionnelle représente une abstraction du système permettant de visualiser les interactions entre les acteurs, les modules métiers et les flux d’information.
+
+\subsection{Acteurs du système}
+Le système s'articule autour de trois acteurs aux responsabilités bien définies :
+
+% -------------------------------------------------------
+% TABLEAU 2 : ACTEURS (Format Longtable 3 colonnes)
+% Col 1: 3cm | Col 2: 3.5cm | Col 3: Reste de la page
+% -------------------------------------------------------
+\begin{longtable}{|p{3cm}|p{3.5cm}|p{\dimexpr\textwidth-7.3cm}|}
+    % --- EN-TÊTES ---
+    \hline
+    \rowcolor{SecColor}
+    \textcolor{white}{\textbf{Acteur}} &\textcolor{white}{\textbf{Profil}} &\textcolor{white}{\textbf{Description et Rôles}} \\ \hline
+    \endfirsthead
+
+    \hline
+    \rowcolor{SecColor}
+    \textcolor{white}{\textbf{Acteur}} &\textcolor{white}{\textbf{Profil}} &\textcolor{white}{\textbf{Description et Rôles}} \\ \hline
+    \endhead
+
+    % --- PIEDS DE PAGE ---
+    \hline
+    \endfoot
+
+    \hline
+    \caption{Acteurs du système et leurs responsabilités respectives} 
+    \label{tab:acteurs_systeme}
+    \endlastfoot
+
+    % --- CONTENU ---
+    \textbf{Ingénieur} & Utilisateur Final & Consulte les formulaires, upload les données (Worksheet/Hardware ID), guide l'IA via des commentaires et déclenche la génération. \\ \hline
+    
+    \textbf{Administrateur} & Gestionnaire & Configure les modèles documentaires, conçoit les formulaires dynamiques et définit les instructions (Intents\gloref{7}) pour guider l'IA. \\ \hline
+    
+    \textbf{Moteurs IA} & Acteurs Système & Modèles LLM (OpenAI, Claude) qui reçoivent le contexte, génèrent le texte technique, traduisent le contenu et le formatent de manière structurée. \\ 
+    % Ligne finale gérée par \endlastfoot
+\end{longtable}
+
+\subsection{Modules fonctionnels}
+La plateforme s’appuie sur plusieurs modules métier encapsulant les fonctionnalités du projet :
+
+% -------------------------------------------------------
+% TABLEAU 3 : MODULES (Format Longtable 3 colonnes)
+% Col 1: 3.5cm | Col 2: 3cm | Col 3: Reste de la page
+% -------------------------------------------------------
+\begin{longtable}{|p{3.5cm}|p{3cm}|p{\dimexpr\textwidth-7.3cm}|}
+    % --- EN-TÊTES ---
+    \hline
+    \rowcolor{SecColor}
+    \textcolor{white}{\textbf{Module}} & \textcolor{white}{\textbf{Type}} & \textcolor{white}{\textbf{Rôle principal}} \\ \hline
+    \endfirsthead
+
+    \hline
+    \rowcolor{SecColor}
+    \textcolor{white}{\textbf{Module}} & \textcolor{white}{\textbf{Type}} & \textcolor{white}{\textbf{Rôle principal}} \\ \hline
+    \endhead
+
+    \hline
+    \endfoot
+
+    % --- PIEDS DE PAGE ---
+    \hline
+    \caption{Modules fonctionnels principaux de la plateforme} 
+    \label{tab:modules_fonctionnels}
+    \endlastfoot
+
+    % --- CONTENU ---
+    \textbf{Gestion Templates} & Back-Office & Stockage, édition et gestion des variables des modèles documentaires (Jinja2). \\ \hline
+    
+    \textbf{Form Builder} & Back-Office & Création de formulaires dynamiques liés aux modèles, gestion des questions (Texte, QCM, ID). \\ \hline
+    
+    \textbf{Moteur d'Extraction} & Front-Office & Parsing des fichiers Excel (Worksheet\gloref{14}) et requêtes BDD pour auto-complétion du Hardware. \\ \hline
+    
+    \textbf{Orchestrateur IA} & Système (API) & Assemblage des Prompts (Prompt Chaining\gloref{11}), routage dynamique entre OpenAI et Claude, et traitement asynchrone des réponses. \\ \hline
+    
+    \textbf{Générateur Documentaire} & Système (Core) & Injection des réponses de l'IA et des données extraites dans les modèles documentaires. \\ 
+    % Ligne finale gérée par \endlastfoot
+\end{longtable}
+
+\subsection{Flux fonctionnels}
+L’organisation fonctionnelle de la plateforme s’articule selon les principaux cas d’usage suivants :
+\begin{itemize}
+    \item \textbf{L'Administrateur :} Se connecte, configure une nouvelle Technologie, charge le modèle de document associé, et prépare le formulaire en injectant les directives IA (Intents\gloref{7}) pour chaque étape du Prompt Chaining.
+    \item \textbf{L'Ingénieur :} Choisit la Technologie, charge son fichier Excel de serveurs, commente les sections pour guider l'IA, et clique sur générer.
+    \item \textbf{Le Système (Orchestrateur IA + Templating) :} Traite les données Excel, orchestre les requêtes vers OpenAI et Claude pour rédiger, analyser et traduire les paragraphes manquants, insère les résultats structurés dans le modèle documentaire Jinja2, et retourne le document formaté à l'ingénieur.
+\end{itemize}
+
+\subsection{Schéma fonctionnel}
+Le schéma ci-dessous présente une vue d’ensemble de l’architecture fonctionnelle de la plateforme DocuGen AI. Il met en évidence la coordination entre le front-office (saisie ingénieur, upload de données), le back-office (configuration des modèles documentaires) et les moteurs systèmes (orchestration multi-LLM et templating Jinja2).
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth, height=10cm, keepaspectratio]{arch_fonct.png}
+    \caption{Architecture fonctionnelle globale de la solution DocuGen AI}
+    \label{fig:arch_fonct}
+\end{figure}
+
+% =======================================================
+% CONCLUSION DU CHAPITRE
+% =======================================================
+\section*{Conclusion du chapitre}
+\addcontentsline{toc}{section}{Conclusion du chapitre}
+Ce chapitre a posé les bases fonctionnelles du projet. Il a d'abord montré les limites de la rédaction manuelle sur Word, source de pertes de temps et d'erreurs. Une solution a ensuite été proposée : une plateforme couplant une orchestration d'IA\acref{12} générative (OpenAI et Claude) et le templating\gloref{13} dynamique (Jinja2).
+
+Les objectifs et l'analyse des besoins ont défini le périmètre de l'application. L'étude comparative a validé l'abandon des traitements de texte classiques au profit d'une approche d'assemblage automatisée. L'architecture fonctionnelle a décrit les rôles des acteurs (Ingénieur et Administrateur) et les différents modules du système.
+
+Ces éléments constituent un socle solide pour aborder la phase technique, à savoir la modélisation détaillée (UML) et la conception de la base de données qui feront l'objet du chapitre suivant.
+
+% =======================================================
+% CHAPITRE 3
+% =======================================================
+\chapter{Conception Technique et Modélisation}
+
+\section*{Introduction}
+\addcontentsline{toc}{section}{Introduction}
+Après avoir défini les objectifs, les besoins, et l'architecture fonctionnelle de la plateforme dans le chapitre précédent, ce chapitre formalise la conception technique du projet \textbf{DocuGen AI}. Cette étape traduit les exigences fonctionnelles en structures logicielles concrètes.
+
+La conception repose sur deux volets :
+\begin{itemize}
+    \item La description détaillée des fonctionnalités clés (moteur d'extraction, orchestration IA et moteur de templating).
+    \item La modélisation UML, permettant de représenter les interactions dynamiques entre les acteurs, les scénarios d’usage, et les entités relationnelles du système.
+\end{itemize}
+
+Cette phase de conception pose les bases nécessaires au développement (FastAPI/React) et à la maintenance de la solution.
+
+% =======================================================
+% 1. DESCRIPTION DES FONCTIONNALITÉS
+% =======================================================
+\section{Description détaillée des fonctionnalités}
+Cette section détaille le fonctionnement interne des principales fonctionnalités métier de la plateforme. Chacune d'elles a été pensée pour répondre aux besoins spécifiques d'automatisation documentaire, tout en garantissant efficacité et sécurité.
+
+\subsection{Configuration des Templates (Back-Office Admin)}
+La plateforme permet à l'Administrateur de configurer les bases de la génération documentaire :
+\begin{itemize}
+    \item \textbf{Upload du modèle documentaire :} L'administrateur charge un fichier modèle (template Jinja2) contenant la structure de base (Page de garde, charte graphique, balises de données dynamiques).
+    \item \textbf{Création de Formulaires Dynamiques :} Il conçoit un formulaire lié à ce template, en définissant des champs (Texte, Listes, Upload).
+    \item \textbf{Définition des Intents IA :} Pour chaque champ nécessitant une rédaction, l'administrateur définit un "Prompt Système\gloref{12}\gloref{12}" caché (l'Intent) qui dictera aux modèles d'IA la manière de rédiger le contenu attendu (ex: "Adopte un ton technique, liste les risques de sécurité").
+\end{itemize}
+
+\subsection{Extraction de Données (Parsing\gloref{10}\gloref{10} Worksheet)}
+Afin d'éviter les saisies manuelles fastidieuses des spécifications matérielles :
+\begin{itemize}
+    \item L'ingénieur upload un fichier Excel (Worksheet) standardisé.
+    \item Le backend Python parse ce fichier, extrait les identifiants matériels (Hardware IDs) et interroge la base de données interne.
+    \item Le système auto-complète les tableaux du document avec des données fiables (Modèle, CPU, RAM, Adresses IP), garantissant l'exactitude technique du livrable final.
+\end{itemize}
+
+\subsection{Orchestration de l'Intelligence Artificielle (Multi-LLM)}
+Le cœur intelligent de la plateforme repose sur une interaction avancée avec les modèles de langage (LLMs) :
+\begin{itemize}
+    \item Le système compile les données saisies par l'ingénieur, les données extraites du fichier Excel, et les "Intents" de l'administrateur.
+    \item Une séquence de requêtes structurées (Prompt Chaining) est orchestrée vers les API d'OpenAI et de Claude (Anthropic). Claude peut être utilisé pour la synthèse et l'analyse longue, tandis qu'OpenAI peut formater les sorties structurées.
+    \item L'IA génère les paragraphes techniques manquants et, si demandé par l'ingénieur, assure la traduction contextuelle du contenu vers la langue cible.
+\end{itemize}
+
+\subsection{Assemblage Documentaire (Moteur de Templating)}
+La génération du fichier final se fait en deux étapes strictes :
+\begin{itemize}
+    \item \textbf{Templating (Jinja2) :} Les textes générés par les LLMs et les données brutes sont injectés dans les variables du modèle documentaire. Le système effectue un formatage dynamique et un nettoyage des chaînes de caractères.
+    \item \textbf{Génération finale :} Le backend assemble les différents blocs traités et exporte un document final standardisé (PDF\acref{24}), professionnel et respectant la norme d'archivage de l'entreprise.
+\end{itemize}
+
+% =======================================================
+% 2. MODÉLISATION UML
+% =======================================================
+\section{Modélisation UML\acref{39}}
+La modélisation UML permet de visualiser de manière abstraite la structure du système, les interactions entre les acteurs et les différents composants internes. Cette section présente trois diagrammes clés.
+
+\subsection{Diagramme de cas d’utilisation}
+Le diagramme de cas d’utilisation représente les principales interactions entre les acteurs du système et les fonctionnalités offertes par la plateforme. Il met en évidence les responsabilités strictes de chaque profil.
+
+\begin{itemize}
+    \item \textbf{L’Ingénieur peut :} S'authentifier, consulter les formulaires, uploader un fichier Excel (Worksheet), insérer des directives contextuelles pour l'IA, choisir la langue et déclencher la génération du document.
+    \item \textbf{L'Administrateur peut :} S'authentifier, gérer les technologies, uploader les modèles documentaires, créer les formulaires et définir les "Intents" (directives de génération).
+    \item \textbf{Le Moteur IA (Système) :} Intervient de manière automatisée pour analyser, rédiger et traduire le contenu à la demande du backend via l'orchestration multi-LLM.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=10cm,width=1.05\textwidth,keepaspectratio]{Diagramme de cas d'utilisation.png} 
+    \caption{Diagramme de cas d’utilisation global de DocuGen AI}
+    \label{fig:usecase}
+\end{figure}
+
+\subsection{Diagrammes de Séquence}
+Les diagrammes de séquence modélisent les interactions temporelles entre les acteurs et les composants du système à travers une série de requêtes HTTP et de traitements. 
+
+\subsubsection{Diagramme de séquence : Configuration d'un Template (Administrateur)}
+Ce diagramme illustre le processus par lequel un administrateur prépare l'environnement de génération :
+\begin{itemize}
+    \item L'administrateur crée une "Technologie" (ex: Architecture Réseau).
+    \item Il charge le modèle documentaire contenant la structure de base.
+    \item Il configure le formulaire dynamique et associe des Prompts Systèmes (Intents) aux sections à générer.
+    \item Le Backend (FastAPI) valide l'intégrité des balises Jinja2 du modèle et stocke la configuration dans PostgreSQL, rendant le tout disponible pour les ingénieurs.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth, height=10cm, keepaspectratio]{Diagramme de Séquence-Configuration d'un Template.png} 
+    \caption{Diagramme de séquence : Configuration d'un modèle documentaire}
+    \label{fig:seq_admin}
+\end{figure}
+
+\subsubsection{Diagramme de séquence : Récupération Automatique des Specs (Hardware ID)}
+Ce processus démontre l'automatisation de la saisie des données matérielles. Pour éviter les erreurs de retranscription, le système intègre un mécanisme de Lookup :
+\begin{itemize}
+    \item L'ingénieur saisit un identifiant matériel unique (ex: "HW-9980-X") dans le formulaire.
+    \item L'interface React envoie une requête HTTP GET au contrôleur backend de la plateforme.
+    \item Le backend interroge la base de données PostgreSQL (table HardwareRef) pour récupérer la fiche technique JSON correspondante.
+    \item Si l'équipement est reconnu, les données (RAM, CPU, Modèle) sont retournées et auto-remplissent les champs de l'interface. Dans le cas contraire, une erreur 404 notifie l'utilisateur que le matériel n'est pas référencé.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth, height=10cm, keepaspectratio]{Diagramme de Séquence-Récupération Automatique des Specs (Hardware ID).png} 
+    \caption{Diagramme de séquence : Récupération des spécifications par Hardware ID}
+    \label{fig:seq_hardware_lookup}
+\end{figure}
+
+\subsubsection{Diagramme de séquence : Pipeline IA et Traduction}
+Ce diagramme détaille l'interaction asynchrone entre le backend et les services d'Intelligence Artificielle lors de la phase de rédaction :
+\begin{itemize}
+    \item Le système backend rassemble le contexte (Directives Admin, Données Ingénieur, Contexte RAG\acref{29}).
+    \item Une séquence de requêtes est envoyée aux LLMs (OpenAI/Claude) pour générer le contenu technique brut.
+    \item Le résultat est ensuite soumis à un module de traduction neuronale contextuelle si l'utilisateur a sélectionné une langue de destination différente de la langue source, assurant ainsi un lexique technique approprié.
+    \item Le texte final traduit est retourné à l'orchestrateur pour être injecté dans le moteur Jinja2.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth, height=10cm, keepaspectratio]{Diagramme de Séquence-Pipeline IA et Traduction.png} 
+    \caption{Diagramme de séquence : Pipeline de génération IA et traduction}
+    \label{fig:seq_pipeline_ia}
+\end{figure}
+
+\subsubsection{Diagramme de séquence : Génération Documentaire (Flux Principal)}
+Ce diagramme modélise le cœur fonctionnel du projet, consolidant l'ensemble des étapes :
+\begin{itemize}
+    \item L'ingénieur valide le formulaire pré-rempli.
+    \item Le Backend orchestre les appels vers la base vectorielle (RAG\acref{29}) et les API des LLMs en leur transmettant le contexte (Données + Intents).
+    \item Au retour des IA, le Backend injecte le contenu structuré dans le moteur Jinja2, puis génère le document final.
+    \item Une fois l'assemblage terminé, le lien de téléchargement du document est retourné au front-end React.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth, height=10cm, keepaspectratio]{Diagramme de Séquence-Génération de Document (Flux Principal).png} 
+    \caption{Diagramme de séquence : Génération automatisée du document final}
+    \label{fig:seq_gen}
+\end{figure}
+
+\subsection{Diagramme de classes}
+Le diagramme de classes fournit une vision claire de l’architecture statique de la base de données relationnelle (PostgreSQL) supportant la solution. Il inclut les entités fondamentales du système :
+
+\begin{itemize}
+    \item \textbf{User / Role :} Gère l'authentification et l'autorisation. Les rôles (Ingénieur, Administrateur) dictent les accès aux fonctionnalités via le contrôle RBAC.
+    \item \textbf{Technology :} Représente le domaine technique (ex: Système, Réseau, Sécurité) auquel sont rattachés les modèles.
+    \item \textbf{TemplateDoc / JinjaTemplate :} Contient le chemin vers le modèle documentaire physique et les métadonnées de structure.
+    \item \textbf{FormField / Intent :} Représente les questions du formulaire dynamique. L'entité Intent stocke les instructions cachées destinées aux modèles d'IA.
+    \item \textbf{HardwareRef :} Table de référence contenant les caractéristiques techniques du matériel, interrogée lors de l'upload d'un Worksheet Excel.
+\end{itemize}
+
+Les relations entre ces entités (Une Technologie possède plusieurs Templates, un Template possède plusieurs Champs) garantissent l'intégrité référentielle et la scalabilité des données du projet.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Diagramme de classes.png} 
+    \caption{Diagramme de classes global de la plateforme DocuGen AI}
+    \label{fig:classes}
+\end{figure}
+
+\subsection{Diagrammes d'Activités}
+Les diagrammes d'activités permettent de détailler la logique séquentielle et conditionnelle des processus métier complexes au sein de la plateforme. Ils offrent une vision algorithmique des étapes franchies par le système et l'utilisateur.
+
+\subsubsection{Diagramme d'Activité : Gestion des Templates par l'Administrateur}
+Ce diagramme détaille le flux de travail d'un Administrateur lorsqu'il configure un nouveau modèle documentaire. Le processus est jalonné de vérifications pour garantir la viabilité du template avant sa mise à disposition aux Ingénieurs.
+
+Le flux se décompose ainsi :
+\begin{itemize}
+    \item L'Administrateur s'authentifie sur le portail et initie la création d'un nouveau Template.
+    \item Il téléverse le modèle documentaire (template Jinja2). Le système effectue un premier contrôle de syntaxe pour détecter d'éventuelles balises de variables invalides ou manquantes.
+    \item Si le fichier est rejeté, l'Administrateur est invité à le corriger. Si le fichier est valide, il procède à la configuration des champs dynamiques (le Formulaire).
+    \item Pour chaque champ nécessitant une intervention de l'IA, il définit un "Intent" (Prompt Système).
+    \item Une fois la configuration terminée, le système enregistre le Template et le Formulaire associé dans la base de données PostgreSQL, le rendant "Actif".
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth, height=10cm, keepaspectratio]{Diagramme d'activités-Admin.png} 
+    \caption{Diagramme d'activité : Processus de création et validation d'un Template par l'Administrateur}
+    \label{fig:activite_admin}
+\end{figure}
+
+\subsubsection{Diagramme d'Activité : Processus de Génération par l'Ingénieur}
+Ce diagramme modélise le parcours utilisateur de l'Ingénieur, depuis la sélection du projet jusqu'à l'obtention du document final. Ce flux met en évidence l'interaction asynchrone avec l'orchestrateur IA et le moteur de templating.
+
+Le flux se décompose ainsi :
+\begin{itemize}
+    \item L'Ingénieur s'authentifie et sélectionne un Template actif.
+    \item Il remplit manuellement les champs simples du formulaire.
+    \item Il a la possibilité d'uploader un Worksheet Excel. S'il le fait, le système parse le fichier et extrait les spécifications matérielles (Hardware IDs).
+    \item L'Ingénieur peut ajouter des commentaires spécifiques (Guidage Contextuel) pour orienter l'IA sur certaines sections.
+    \item Il sélectionne la langue de destination et valide la génération.
+    \item Le système compile les données (Formulaire + Excel + Intents) et orchestre les requêtes via les API OpenAI et Claude. 
+    \item Si les API retournent une erreur, le système notifie l'Ingénieur. Si le retour est un succès, le texte généré est injecté via Jinja2 dans le modèle documentaire.
+    \item Le moteur de génération assemble et exporte le document final qui est alors mis à disposition pour le téléchargement.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth, height=10cm, keepaspectratio]{Diagramme d'activités-Ingénieur.png} 
+    \caption{Diagramme d'activité : Flux de génération automatisée par l'Ingénieur}
+    \label{fig:activite_inge}
+\end{figure}
+
+\subsubsection{Diagramme d'Activité : Processus Interne du Moteur IA}
+Cette section illustre l'algorithmique interne, invisible pour l'utilisateur, exécutée par le backend lors du traitement intelligent d'une requête de génération. Elle met en lumière l'architecture RAG et l'orchestration des données :
+\begin{itemize}
+    \item Le système reçoit la requête et interroge d'abord la base vectorielle (RAG) pour récupérer les architectures et normes d'entreprise passées, ancrant la future génération dans le réel.
+    \item Les instructions globales (SystemPrompt), les directives spécifiques (Intents) et le contexte (RAG + Formulaire) sont fusionnés pour construire le Prompt complet.
+    \item L'orchestrateur décide de la distribution de la charge vers OpenAI ou Claude selon la nature du texte attendu.
+    \item Après la génération et une éventuelle traduction, un post-traitement formate les données (ex: JSON/XML structuré) pour garantir l'absence d'erreurs lors de l'injection dynamique dans le modèle documentaire Jinja2.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth, height=10cm, keepaspectratio]{Diagramme d'activités-Moteur IA.png} 
+    \caption{Diagramme d'activité : Algorithmique interne du moteur IA (RAG et Formatage)}
+    \label{fig:activite_moteur_ia}
+\end{figure}
+
+\subsection{Diagramme de Déploiement}
+Le diagramme de déploiement illustre la topologie matérielle et logicielle sur laquelle la plateforme \textbf{\textit{DocuGen AI}} sera hébergée (On-Premise ou Cloud). Il met en évidence la nature distribuée de l'architecture micro-services.
+
+L'infrastructure se compose des nœuds suivants :
+\begin{itemize}
+    \item \textbf{Nœud Client (Navigateur Web) :} Héberge l'application SPA React.js exécutée côté client.
+    \item \textbf{Nœud Serveur d'Application (Docker) :} Conteneur hébergeant l'API FastAPI (Python). Il expose les endpoints REST et gère la logique métier.
+    \item \textbf{Nœud de Traitement et Templating :} Un conteneur dédié et isolé pour l'assemblage Jinja2 et l'export documentaire. Il reçoit les données structurées de l'API et génère les fichiers finaux (PDF).
+    \item \textbf{Nœud Base de Données :} Serveur hébergeant l'instance PostgreSQL pour la persistance des données relationnelles.
+    \item \textbf{Nœuds Cloud (Externes) :} Représentent les API LLM (OpenAI, Anthropic), accessibles via des requêtes HTTPS sécurisées pour la génération et l'analyse de texte.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth, height=10cm, keepaspectratio]{diagramme_deploiement.png} 
+    \caption{Diagramme de déploiement physique et logique de l'infrastructure DocuGen AI}
+    \label{fig:deploiement}
+\end{figure}
+
+% =======================================================
+% CONCLUSION DU CHAPITRE
+% =======================================================
+\section*{Conclusion du chapitre}
+\addcontentsline{toc}{section}{Conclusion du chapitre}
+Cette phase de conception technique a structuré la plateforme DocuGen AI. En partant des processus métiers (de l'upload Excel à la génération du document final), nous avons modélisé les interactions logiques, temporelles et physiques du système à travers des diagrammes UML (Cas d'utilisation, Séquence, Classes, Activités et Déploiement).
+
+Ces schémas confirment la viabilité de l'architecture retenue, séparant la gestion (React/FastAPI), le stockage (PostgreSQL\acref{26}) et le traitement intelligent (Jinja2/Multi-LLM\acref{19}). Ils fournissent le cahier des charges technique pour l'implémentation. 
+
+Cette conception prépare la phase de développement, détaillée dans le chapitre suivant.
+
+% =======================================================
+% CHAPITRE 4 : ÉTUDE TECHNIQUE ET OUTILS
+% =======================================================
+\chapter{Étude Technique et Technologies Utilisées}
+
+\section*{Introduction}
+\addcontentsline{toc}{section}{Introduction}
+Ce chapitre met en lumière l’ensemble des choix techniques, outils et technologies adoptés lors de la mise en œuvre de la plateforme \textbf{DocuGen AI}. 
+
+La réalisation de ce projet innovant a nécessité l’intégration de plusieurs briques technologiques modernes, couvrant divers aspects tels que :
+\begin{itemize}
+    \item Le développement web full-stack, basé sur une séparation stricte entre un backend asynchrone (FastAPI) et un frontend réactif (React.js).
+    \item La persistance et la validation des données relationnelles (PostgreSQL, SQLAlchemy, Pydantic).
+    \item L'intégration et l'orchestration de l'Intelligence Artificielle générative via les API d'OpenAI et de Claude (Anthropic).
+    \item La structuration et la génération documentaire dynamique avec le moteur de templating Jinja2.
+    \item L'approche DevOps et la conteneurisation pour garantir la portabilité du système (Docker, Git).
+\end{itemize}
+
+Chaque section suivante détaillera ces couches technologiques, en justifiant leur choix, leur rôle précis dans l’architecture du projet, et les bénéfices qu'elles apportent.
+
+% =======================================================
+% 1. VUE D'ENSEMBLE
+% =======================================================
+\section{Vue d’ensemble des technologies utilisées}
+Afin de répondre aux exigences fonctionnelles et techniques du projet, plusieurs outils ont été sélectionnés avec soin. Leur intégration a permis de construire une plateforme complète, modulaire et fiable. Le tableau ci-dessous présente une synthèse des technologies clés utilisées.
+
+\begin{longtable}{|p{3.5cm}|p{3.5cm}|p{\dimexpr\textwidth-7.8cm}|}
+    % --- EN-TÊTES ---
+    \hline
+    \rowcolor{ChapColor}
+    \textcolor{white}{\textbf{Catégorie}} & \textcolor{white}{\textbf{Technologie}} & \textcolor{white}{\textbf{Rôle principal}} \\ \hline
+    \endfirsthead
+    
+    % --- EN-TÊTE DES PAGES SUIVANTES (Répétition) ---
+    \hline
+    \rowcolor{ChapColor}
+    \textcolor{white}{\textbf{Catégorie}} & \textcolor{white}{\textbf{Technologie}} & \textcolor{white}{\textbf{Rôle principal}} \\ \hline
+    \endhead
+
+    % --- PIED DE PAGE NORMAL ---
+    \hline
+    \endfoot
+
+    % --- PIED DE PAGE FINAL ---
+    \hline
+    \caption{Synthèse des technologies et outils utilisés dans le projet} 
+    \label{tab:technologies_outils}
+    \endlastfoot
+
+    % --- CONTENU ---
+    \textbf{Langages} & Python, JavaScript & Logique serveur (Backend) et interface utilisateur (Frontend). \\ \hline
+    \textbf{Frontend} & React.js, Vite, MUI & Interface dynamique, build ultra-rapide et composants UI. \\ \hline
+    \textbf{Backend / API} & FastAPI, Pydantic & Gestion des requêtes REST asynchrones et validation des données. \\ \hline
+    \textbf{Base de données} & PostgreSQL, SQLAlchemy & Stockage relationnel et mapping objet-relationnel (ORM). \\ \hline
+    \textbf{IA \& Génération} & OpenAI, Claude, Jinja2 & Orchestration multi-LLM (Prompt Chaining) et moteur de templates documentaires. \\ \hline
+    \textbf{DevOps \& Outils} & Docker, Git, Github, n8n & Conteneurisation, versioning et orchestration des workflows. \\ 
+\end{longtable}
+
+% =======================================================
+% 2. LANGAGES DE PROGRAMMATION
+% =======================================================
+\section{Langages de programmation}
+\subsection{Python (PY)}
+Python est un langage de programmation interprété, multi-paradigme et lisible. Dans le cadre de DocuGen AI, Python constitue le \textbf{langage cœur du Backend}. Il a été choisi pour sa richesse en bibliothèques d'Intelligence Artificielle et de manipulation de données, permettant d'orchestrer facilement les appels asynchrones vers OpenAI et Claude, et de parser les fichiers Excel (Worksheets).
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.25\textwidth,keepaspectratio]{logo_python.png}
+    \caption{Logo Python}
+    \label{fig:Logo Python}
+\end{figure}
+
+\subsection{JavaScript (JS)}
+JavaScript est le langage de programmation incontournable pour le développement web côté client. Il est utilisé ici comme \textbf{langage principal du Frontend} pour orchestrer la logique de l'interface utilisateur, gérer les états dynamiques des formulaires et assurer la communication asynchrone avec l'API.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.25\textwidth,keepaspectratio]{logo_js.png}
+    \caption{Logo JavaScript}
+    \label{fig:Logo JavaScript}
+\end{figure}
+
+% =======================================================
+% 3. FRAMEWORKS ET BIBLIOTHÈQUES FRONTEND
+% =======================================================
+\section{Frameworks et Bibliothèques Frontend}
+\subsection{Node.js}
+Node.js est un environnement d'exécution JavaScript multiplateforme. Bien que le backend principal de l'application soit développé en Python, Node.js joue un rôle fondamental dans l'écosystème de développement du projet DocuGen AI. Il fournit le moteur d'exécution nécessaire pour les outils de build du frontend (Vite), le fonctionnement de l'application React en phase de développement, et la gestion centralisée des dépendances (librairies) via NPM (Node Package Manager).
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.25\textwidth,keepaspectratio]{logo_nodejs.png}
+    \caption{Logo Node.js}
+    \label{fig:Logo Node.js}
+\end{figure}
+
+\subsection{React.js}
+React est une bibliothèque JavaScript développée par Meta, spécialisée dans la création d'interfaces utilisateurs via des composants réutilisables. Son rôle est de \textbf{gérer le rendu de l'interface SPA (Single Page Application)}. Il offre à l'ingénieur une expérience fluide, sans rechargement de page, lors de la saisie des données d'architecture et du suivi de la génération.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.25\textwidth,keepaspectratio]{logo_react.png}
+    \caption{Logo React.js}
+    \label{fig:Logo React.js}
+\end{figure}
+
+\subsection{Vite}
+Vite est un outil de build de nouvelle génération pour le frontend. Il remplace les anciens bundlers (comme Webpack) en offrant un serveur de développement ultra-rapide. Son rôle est de \textbf{compiler le code React} de manière quasi-instantanée lors du développement.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.25\textwidth,keepaspectratio]{logo_vite.png}
+    \caption{Logo Vite}
+    \label{fig:Logo Vite}
+\end{figure}
+
+\subsection{Material UI (MUI\acref{20}) \& Tailwind CSS\acref{5}}
+Pour garantir une charte graphique professionnelle et responsive, deux outils ont été combinés :
+\begin{itemize}
+    \item \textbf{MUI :} Fournit des composants prêts à l'emploi (boutons, modales, grilles) respectant le Material Design.
+    \item \textbf{Tailwind CSS :} Un framework CSS utilitaire permettant d'ajuster finement le style (marges, couleurs) directement dans les classes des composants, accélérant ainsi l'intégration.
+\end{itemize}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth,keepaspectratio]{logo_mui_tailwind.png}
+    \caption{Logos Material UI et Tailwind CSS\acref{5}}
+    \label{fig:Logos Material UI et Tailwind CSS}
+\end{figure}
+
+\subsection{Axios}
+Axios est un client HTTP basé sur les promesses. Son rôle dans le projet est d'\textbf{effectuer les requêtes vers l'API FastAPI} (GET, POST, etc.) depuis React, tout en gérant facilement l'injection des tokens de sécurité (JWT) dans les en-têtes HTTP.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.25\textwidth,keepaspectratio]{logo_axios.png}
+    \caption{Logo Axios}
+    \label{fig:Logo Axios}
+\end{figure}
+
+% =======================================================
+% 4. FRAMEWORKS ET BIBLIOTHÈQUES BACKEND
+% =======================================================
+\section{Frameworks et Bibliothèques Backend}
+\subsection{FastAPI}
+FastAPI est un framework web moderne et performant pour construire des APIs avec Python. Son architecture asynchrone native est primordiale pour ce projet : elle évite que le serveur ne soit bloqué pendant les longs temps d'attente lors de l'orchestration des appels aux API LLM (OpenAI/Claude).
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.25\textwidth,keepaspectratio]{logo_fastapi.png}
+    \caption{Logo FastAPI}
+    \label{fig:Logo FastAPI}
+\end{figure}
+
+\subsection{Pydantic}
+Pydantic est une bibliothèque de \textbf{validation de données} basée sur le typage Python. Dans le projet, elle garantit que toutes les requêtes reçues par l'API (ex: les réponses des formulaires des ingénieurs) respectent strictement le format attendu avant d'être traitées ou sauvegardées.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.25\textwidth,keepaspectratio]{logo_pydantic.png}
+    \caption{Logo Pydantic}
+    \label{fig:Logo Pydantic}
+\end{figure}
+
+\subsection{SQLAlchemy \& Alembic}
+Pour interagir avec la base de données relationnelle sans écrire de SQL brut :
+\begin{itemize}
+    \item \textbf{SQLAlchemy :} L'ORM\acref{22} (Object-Relational Mapper) qui traduit les objets Python en requêtes SQL.
+    \item \textbf{Alembic :} Un outil léger de migration de base de données, permettant de tracer et d'appliquer les changements de structure (ajout de colonnes/tables) au fil des versions du projet.
+\end{itemize}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth,keepaspectratio]{logo_sqlalchemy_alembic.png}
+    \caption{Logos SQLAlchemy et Alembic}
+    \label{fig:Logos SQLAlchemy et Alembic}
+\end{figure}
+
+% =======================================================
+% 5. BASE DE DONNÉES
+% =======================================================
+\section{Base de Données}
+\subsection{PostgreSQL (PSQL)}
+PostgreSQL est un système de gestion de bases de données relationnelles open source robuste. Il a été choisi pour le stockage persistant de la plateforme DocuGen AI. Il stocke de manière sécurisée les profils utilisateurs, la configuration des formulaires et l'inventaire matériel (pour l'extraction Worksheet).
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.25\textwidth,keepaspectratio]{logo_postgresql.png}
+    \caption{Logo PostgreSQL}
+    \label{fig:Logo PostgreSQL}
+\end{figure}
+
+% =======================================================
+% 6. INTELLIGENCE ARTIFICIELLE ET USINE DOCUMENTAIRE
+% =======================================================
+\section{Intelligence Artificielle et Génération Documentaire}
+\subsection{Orchestration Multi-LLM (OpenAI \& Anthropic Claude)}
+Le service IA s'appuie sur une orchestration hybride de LLMs. Grâce à l'intégration des bibliothèques Python officielles, l'API FastAPI orchestre des séquences de requêtes (Prompt Chaining) vers :
+\begin{itemize}
+    \item \textbf{OpenAI :} Utilisé pour ses capacités de raisonnement strict, d'extraction de données et de formatage de sorties structurées (JSON).
+    \item \textbf{Claude (Anthropic) :} Sollicité pour sa large fenêtre de contexte, sa capacité de synthèse naturelle et la rédaction fluide de longs documents techniques.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth,keepaspectratio]{logo_openai_claude.png}
+    \caption{Logos OpenAI et Anthropic Claude}
+    \label{fig:Logo OpenAI Claude}
+\end{figure}
+
+\subsection{Jinja2 (Moteur de Templating)}
+Jinja2 est un puissant \textbf{moteur de template Python}. Son rôle est fondamental dans l'usine documentaire : il fait le pont entre les données structurées renvoyées par l'orchestrateur IA et le document final. Il parcourt le modèle documentaire de base et remplace dynamiquement les variables par les textes générés, garantissant une standardisation des livrables de l'entreprise.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.25\textwidth,keepaspectratio]{logo_jinja2.png}
+    \caption{Logo Jinja2\gloref{13}}
+    \label{fig:Logo Jinja2\gloref{13}}
+\end{figure}
+
+% =======================================================
+% 7. DEVOPS, CONTENEURISATION ET ENVIRONNEMENT
+% =======================================================
+\section{Outils DevOps, Conteneurisation et Environnement}
+\subsection{Docker}
+Docker est la plateforme de \textbf{conteneurisation} du projet. Il permet d'encapsuler le Backend FastAPI, le Frontend React et la base PostgreSQL dans des conteneurs isolés. Cela garantit que la plateforme fonctionnera de manière identique sur le poste du développeur et sur les serveurs de production.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.25\textwidth,keepaspectratio]{logo_docker.png}
+    \caption{Logo Docker}
+    \label{fig:Logo Docker}
+\end{figure}
+
+\subsection{Git \& GitHub}
+\textbf{Git} est le système de gestion de version décentralisé (DVCS\acref{7}) qui trace chaque modification du code source. \textbf{GitHub} agit comme la plateforme d'hébergement cloud de ce code, facilitant la collaboration, la revue de code et le déploiement.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth,keepaspectratio]{logo_git_github.png}
+    \caption{Logos Git et GitHub}
+    \label{fig:Logos Git et GitHub}
+\end{figure}
+
+\subsection{n8n}
+n8n est un outil d'automatisation de workflows paramétrable basé sur des nœuds. Dans l'écosystème de ce projet, il permet d'\textbf{orchestrer des processus automatisés complexes} en arrière-plan, pouvant lier différents services externes ou internes sans nécessiter un codage lourd.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.25\textwidth,keepaspectratio]{logo_n8n.png}
+    \caption{Logo n8n}
+    \label{fig:Logo n8n}
+\end{figure}
+
+\subsection{Utilitaires de Développement (ESLint \& IDE)}
+\begin{itemize}
+    \item \textbf{ESLint :} Un utilitaire de linting pour JavaScript qui garantit la qualité du code (Quality Manager) en détectant les erreurs de syntaxe ou le non-respect des conventions.
+    \item \textbf{IDE (Google Antigravity / VS Code) :} L'Environnement de Développement Intégré (Integrated Development Environment) fournit l'interface, l'autocomplétion et les outils de débogage nécessaires à l'ingénieur logiciel pour construire la plateforme.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth,keepaspectratio]{logo_eslint_ide.png}
+    \caption{Logos ESLint et IDE\acref{14}}
+    \label{fig:Logos ESLint et IDE\acref{14}}
+\end{figure}
+
+\section{Outils de développement}
+
+\subsection{Matériel Utilisé}
+Le développement de la plateforme \textbf{DocuGen AI}, intégrant une architecture micro-services complète (FastAPI, React) et une base de données PostgreSQL, nécessite des ressources matérielles fiables pour garantir la fluidité des tests locaux. Le projet a été réalisé sur la station de travail suivante :
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{lenovo-loq-15irx10.png}
+    \caption{Station de travail - Lenovo LOQ 15IRX10}
+    \label{fig:lenovo_loq}
+\end{figure}
+
+\begin{longtable}{|p{4.5cm}|p{\dimexpr\textwidth-5.1cm}|}
+    % --- EN-TÊTES ---
+    \hline
+    \rowcolor{ChapColor}
+    \textcolor{white}{\textbf{Composant}} & \textcolor{white}{\textbf{Spécifications Techniques}} \\ \hline
+    \endfirsthead
+
+    \hline
+    \rowcolor{ChapColor}
+    \textcolor{white}{\textbf{Composant}} & \textcolor{white}{\textbf{Spécifications Techniques}} \\ \hline
+    \endhead
+
+    % --- PIEDS DE PAGE ---
+    \hline
+    \endfoot
+
+    \hline
+    \caption{Configuration matérielle de la station de développement} 
+    \label{tab:hardware_specs}
+    \endlastfoot
+
+    % --- CONTENU DU TABLEAU ---
+    \textbf{Modèle} & Lenovo LOQ 15IRX10 (Gamme Gaming et Création) \\ \hline
+    
+    \textbf{Processeur (CPU)} & Intel Core i7-13650HX (14 Cores : 6 P-cores + 8 E-cores / 20 Threads, jusqu'à 4.9 GHz) \\ \hline
+    
+    \textbf{Carte Graphique (GPU)} & NVIDIA GeForce RTX 5050 Laptop GPU (8 Go GDDR7 dédiés) \\ \hline
+    
+    \textbf{Mémoire Vive (RAM\acref{30})} & 16 Go DDR5\acref{6} à 4800 MHz (Essentiel pour faire tourner simultanément les multiples conteneurs Docker : FastAPI, PostgreSQL, et React) \\ \hline
+    
+    \textbf{Stockage Principal} & 512 Go SSD\acref{37} NVMe\acref{21} PCIe\acref{23} 4.0 (Hébergement du Système d'exploitation, des IDEs, du code source et des images Docker) \\ \hline
+    
+    \textbf{Système d'Exploitation} & Windows 11 Pro (configuré avec le sous-système WSL 2\acref{40} pour l'exécution native et performante des conteneurs Linux via Docker Desktop) \\ 
+\end{longtable}
+
+Ce matériel a permis d'exécuter simultanément l'ensemble de la stack technique conteneurisée (Backend FastAPI, Frontend React et SGBD PostgreSQL) avec une bonne fluidité. Contrairement à une architecture IA purement locale, les modèles de langage (LLM\acref{19}) sollicitent ici les API distantes d'OpenAI et Anthropic. Cela a permis d'alléger la charge locale, réservant ainsi la puissance du CPU multicœurs et de la RAM DDR5 aux tâches de build frontend (Vite) et à l'exécution de l'orchestrateur de templating.
+
+% =======================================================
+% CONCLUSION DU CHAPITRE
+% =======================================================
+\section*{Conclusion du chapitre}
+\addcontentsline{toc}{section}{Conclusion du chapitre}
+Ce chapitre a présenté les technologies retenues pour la réalisation de la plateforme DocuGen AI. Le choix d'une architecture découplée (React / FastAPI / PostgreSQL) garantit la robustesse et la scalabilité du système. 
+
+L'intégration d'une orchestration multi-LLM\acref{19} (OpenAI et Claude) couplée au moteur de templating\gloref{13} Jinja2 donne au projet sa particularité : la combinaison de l'intelligence artificielle et de l'automatisation documentaire. L'utilisation de standards DevOps (Docker, Git) permet un déploiement et une maintenance en environnement professionnel sur le long terme.
+
+% =======================================================
+% CHAPITRE 5 : IMPLÉMENTATION ET RÉALISATION
+% =======================================================
+\chapter{Implémentation et Réalisation}
+
+\section*{Introduction}
+\addcontentsline{toc}{section}{Introduction}
+Ce chapitre présente la concrétisation du projet \textbf{DocuGen AI} à travers la mise en œuvre des différentes étapes nécessaires à son aboutissement. Il détaille le passage de la phase de conception technique (détaillée dans les chapitres précédents) à une solution logicielle fonctionnelle, déployée et prête à être utilisée par les équipes de CBI.
+
+L’implémentation englobe le développement du backend (FastAPI), la conception de l'interface utilisateur (React.js), l'orchestration multi-LLM (OpenAI et Claude) et la configuration du pipeline de génération documentaire (Jinja2). Ce chapitre a pour objectif de démontrer comment les flux de données complexes ont été traduits en actions concrètes, sécurisées et automatisées au sein d’un environnement maîtrisé.
+
+% =======================================================
+% 1. AUTOMATISATION DES PROCESSUS DOCUMENTAIRES
+% =======================================================
+\section{Automatisation du pipeline de génération}
+Dans l’objectif de garantir un fonctionnement autonome, rapide et exempt d'erreurs humaines, un ensemble de mécanismes d’automatisation a été mis en place au cœur du backend FastAPI. Ces automatisations couvrent l’ensemble du cycle de vie du document, de l'extraction des données brutes jusqu'à l'assemblage final du livrable.
+
+\subsection{Extraction automatisée des données matérielles (Worksheet)}
+Afin de supprimer la saisie manuelle des spécifications techniques (adresses IP, CPU, RAM, modèles d'équipements), l'application intègre un moteur de parsing automatisé. Lorsqu'un ingénieur téléverse un fichier Excel (Worksheet), le script Python utilise la bibliothèque `pandas` pour parcourir les lignes, extraire les identifiants uniques (Hardware IDs) et interroger la base de données PostgreSQL pour récupérer les caractéristiques exactes.
+
+\begin{figure}[H]
+    \centering
+    % Remplacez par une capture d'écran d'un bout de code FastAPI ou d'un log de parsing
+    \includegraphics[width=0.7\textwidth]{parsing_excel.png}
+    \caption{Script Python d'automatisation de l'extraction des données Excel}
+    \label{fig:parsing_excel}
+\end{figure}
+
+\subsection{Orchestration des requêtes IA (Multi-LLM)}
+L'intelligence de la plateforme repose sur une génération dynamique et structurée. Le système compile automatiquement un "Prompt" complexe en fusionnant le contexte utilisateur (données du formulaire), les données matérielles extraites, et les "Intents" (directives de rédaction strictes définies par l'Administrateur). Ce prompt est ensuite routé intelligemment au sein d'une architecture multi-LLM :
+\begin{itemize}
+    \item \textbf{OpenAI} est sollicité pour ses capacités d'analyse stricte et de formatage de données (JSON).
+    \item \textbf{Claude (Anthropic)} est utilisé pour la synthèse textuelle et la rédaction technique de longue traîne, grâce à sa vaste fenêtre de contexte.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    % Remplacez par une capture de l'intégration des API (ex: appel asynchrone dans le code)
+    \includegraphics[width=0.8\textwidth]{api_orchestration.png}
+    \caption{Fonction asynchrone d'orchestration multi-LLM avec injection de contexte}
+    \label{fig:api_orchestration}
+\end{figure}
+
+\subsection{Assemblage dynamique via Jinja2}
+Une fois les textes générés par les IA et traduits si nécessaire, le système automatise la création du fichier final. Les variables et les paragraphes structurés sont injectés dans le modèle documentaire brut à l'aide du moteur \textbf{Jinja2}. Le backend compile alors l'ensemble pour générer un document standardisé, professionnel et prêt à être livré, sans aucune intervention manuelle sur la mise en page.
+
+\begin{figure}[H]
+    \centering
+    % Remplacez par une capture des logs terminaux montrant la génération réussie
+    \includegraphics[width=0.75\textwidth]{generation_logs.png}
+    \caption{Logs d'exécution automatisée du pipeline de génération en arrière-plan}
+    \label{fig:generation_logs}
+\end{figure}
+
+
+% =======================================================
+% 2. DÉVELOPPEMENT DE LA PLATEFORME : INTERFACES ET RÔLES
+% =======================================================
+\section{Développement de la plateforme : Interface et rôles}
+
+\subsection{Connexion à la plateforme (Sécurité JWT)}
+L'accès à la plateforme DocuGen AI est strictement sécurisé. L'authentification repose sur des jetons JWT (JSON Web Tokens). Lors de la connexion, l’utilisateur saisit ses identifiants. Si ces derniers sont valides, l'API retourne un token crypté contenant le rôle de l'utilisateur (Ingénieur ou Administrateur), ce qui permet au frontend React d'adapter dynamiquement l'interface aux privilèges accordés.
+
+\begin{figure}[H]
+    \centering
+    % Remplacez par une capture de la page de login de votre app React
+    \includegraphics[width=0.6\textwidth]{interface_login_fixed.png}
+    \caption{Interface de connexion sécurisée à la plateforme DocuGen AI}
+    \label{fig:interface_login}
+\end{figure}
+
+\subsection{Interface dédiée à l'Administrateur}
+L’interface de l'Administrateur a été conçue pour offrir un contrôle total sur l'ingénierie documentaire de la plateforme. C'est ici que la logique métier de l'entreprise est configurée.
+
+\subsubsection{Gestion des Modèles et Formulaires (Form Builder)}
+La création d'un modèle documentaire se fait en plusieurs étapes intuitives. L'administrateur téléverse le modèle de base (template Jinja2). L'interface lui permet ensuite de construire visuellement un formulaire dynamique (champs texte, listes déroulantes, upload) qui sera présenté aux ingénieurs.
+
+\begin{figure}[H]
+    \centering
+    % Remplacez par une capture de l'interface de création de formulaire (Form Builder)
+    \includegraphics[width=0.85\textwidth]{form_builder.png}
+    \caption{Interface Administrateur : Form Builder dynamique pour la configuration des modèles}
+    \label{fig:form_builder}
+\end{figure}
+
+\subsubsection{Définition des Intents IA}
+Pour garantir que l'IA rédige avec un ton professionnel et technique, l'administrateur associe des "Intents" (Prompts système invisibles pour l'utilisateur final) à chaque champ libre du formulaire. Par exemple, il peut imposer à Claude de lister les vulnérabilités réseau sous forme de puces.
+
+\begin{figure}[H]
+    \centering
+    % Remplacez par une capture de l'écran où l'admin tape les instructions pour l'IA
+    \includegraphics[width=0.8\textwidth]{intent_config.png}
+    \caption{Configuration des Intents (Prompts système) pour le guidage des LLMs}
+    \label{fig:intent_config}
+\end{figure}
+
+\subsection{Interface dédiée à l'Ingénieur (Utilisateur Final)}
+L'interface de l'ingénieur est épurée et orientée vers la productivité. Son objectif principal est de générer rapidement un livrable sans se soucier de la structure ou de la mise en forme.
+
+\subsubsection{Processus de saisie et Upload Worksheet\gloref{14}}
+L'ingénieur sélectionne un projet et accède au formulaire pré-configuré par l'administrateur. Il peut glisser-déposer son fichier Excel (Worksheet) contenant l'inventaire matériel dans une zone de dépôt (Drag \& Drop). Le frontend valide le format du fichier avant de l'envoyer à l'API.
+
+\begin{figure}[H]
+    \centering
+    % Remplacez par une capture de l'interface Ingénieur avec la zone d'upload Excel
+    \includegraphics[width=0.85\textwidth]{upload_worksheet.png}
+    \caption{Interface Ingénieur : Saisie du contexte et zone d'upload du fichier Worksheet\gloref{14}}
+    \label{fig:upload_worksheet}
+\end{figure}
+
+\subsubsection{Génération et téléchargement du livrable}
+Une fois le formulaire validé, l'ingénieur déclenche la génération. Un indicateur de chargement l'informe des étapes en cours (Appels IA $\rightarrow$ Assemblage Jinja2). En cas de succès, un bouton de téléchargement apparaît, lui permettant de récupérer le document final, parfaitement formaté et traduit si nécessaire.
+
+\begin{figure}[H]
+    \centering
+    % Remplacez par une capture montrant le succès de la génération et le bouton de téléchargement
+    \includegraphics[width=0.8\textwidth]{download_document.png}
+    \caption{Confirmation de génération automatisée et accès au document final}
+    \label{fig:download_document}
+\end{figure}
+
+% =======================================================
+% 3. DÉPLOIEMENT ET TESTS DE L'API
+% =======================================================
+\section{Déploiement et tests de l'API}
+Pour qu'une plateforme combinant des flux asynchrones d'IA et un moteur de templating dynamique fonctionne de manière stable, le déploiement doit être conteneurisé et les points de terminaison doivent être rigoureusement testés.
+
+\subsection{Déploiement conteneurisé (Docker)}
+L'ensemble de la solution a été encapsulé dans des conteneurs Docker. Cette approche garantit que l'environnement d'exécution fonctionne de manière identique sur n'importe quel serveur hôte de l'entreprise. Le fichier `docker-compose.yml` orchestre la base de données PostgreSQL, le backend FastAPI et le frontend React de manière isolée et sécurisée.
+
+\begin{figure}[H]
+    \centering
+    % Remplacez par une capture de Docker Desktop montrant les conteneurs du projet en cours d'exécution
+    \includegraphics[width=0.75\textwidth]{docker_containers.png}
+    \caption{Conteneurs isolés exécutés via Docker Desktop}
+    \label{fig:docker_containers}
+\end{figure}
+
+\subsection{Documentation et tests de l'API (Swagger UI)}
+Le framework FastAPI génère automatiquement une documentation interactive basée sur le standard OpenAPI. L'interface Swagger UI permet de documenter et de tester tous les points de terminaison (endpoints) de la plateforme, de vérifier les requêtes d'extraction ou d'orchestration IA en direct, et d'analyser la structure des réponses JSON. Cela s'est avéré crucial lors de la phase d'intégration avec le frontend React.
+
+\begin{figure}[H]
+    \centering
+    % Remplacez par une capture de l'interface Swagger générée par FastAPI (localhost:8000/docs)
+    \includegraphics[width=0.85\textwidth]{swagger_ui.png}
+    \caption{Interface Swagger UI pour la documentation et le test des endpoints de l'API REST}
+    \label{fig:swagger_ui}
+\end{figure}
+
+\section*{Conclusion du chapitre}
+\addcontentsline{toc}{section}{Conclusion du chapitre}
+Ce chapitre a permis de concrétiser l’ensemble des objectifs techniques de DocuGen AI. Les interfaces développées avec React.js offrent une expérience utilisateur fluide adaptée à chaque rôle (Ingénieur, Administrateur). Côté backend, l'implémentation de FastAPI a permis de lier avec succès le parsing complexe de données, l'orchestration multi-LLM (OpenAI et Claude) et l'automatisation de l'assemblage documentaire via Jinja2. 
+
+Le déploiement sous Docker valide la portabilité de l'outil et sa robustesse, confirmant la capacité du projet à s'insérer efficacement dans le système d'information de l'entreprise d'accueil pour automatiser sa production documentaire sur le long terme.
+
+
+
+% =========================================================
+% CONCLUSION GÉNÉRALE ET PERSPECTIVES
+% =========================================================
+\chapter*{Conclusion Générale et Perspectives}
+\addcontentsline{toc}{chapter}{Conclusion Générale et Perspectives}
+
+\section*{Conclusion Générale}
+
+Le projet \textbf{"DocuGen AI"} vise à moderniser et automatiser la production de livrables techniques au sein de CBI. Il combine des technologies web modernes (\textbf{Python FastAPI}, \textbf{React.js}, \textbf{PostgreSQL\acref{26}}) et des outils d'Intelligence Artificielle (\textbf{Orchestration Multi-LLM\acref{19} OpenAI \& Claude}, \textbf{RAG\acref{29}}, \textbf{Jinja2\gloref{13}}) pour fournir une solution interactive et standardisée.
+
+
+
+La démarche projet s’est articulée en plusieurs phases rigoureuses : étude préliminaire des besoins métiers (face aux limites des traitements de texte manuels), conception UML détaillée, mise en œuvre technique et intégration des pipelines de génération. L’utilisation d’UML a permis de modéliser avec précision les interactions entre les utilisateurs (Ingénieurs et Administrateurs) et les moteurs systèmes (diagrammes de cas d’utilisation, de séquences, de classes et de déploiement), assurant une vision claire de l'architecture logicielle.
+
+Sur le plan technique, la plateforme a été conçue avec une séparation des responsabilités : un Backend\gloref{2} FastAPI asynchrone\gloref{1} pour l'orchestration des requêtes IA et l'interrogation de la base vectorielle (RAG\acref{29}), un Frontend\gloref{5} React pour l'interface utilisateur, et un moteur de templating\gloref{13} pour l'assemblage final des documents. Cette architecture assure la performance lors des traitements de génération, la maintenabilité et la sécurité du code.
+
+En résumé, ce projet a permis de livrer une solution pratique et innovante, répondant aux besoins d’automatisation de la rédaction technique et de standardisation des architectures IT, ce qui montre l'intérêt de l'IA générative pour l'ingénierie documentaire en entreprise.
+
+\section*{Bénéfices et Apports du Projet}
+
+La réalisation de cette plateforme apporte plusieurs bénéfices majeurs :
+
+\begin{itemize}
+    \item \textbf{Automatisation et Gain de Temps (UX) :} Simplification radicale de la rédaction de dossiers d'architecture. L'ingénieur n'a plus à se soucier de la mise en page ni de la saisie manuelle des spécifications matérielles grâce au parsing Excel et à l'auto-complétion.
+    
+    \item \textbf{Personnalisation et Rédaction Assistée (Multi-LLM) :} Le système orchestre les API d'OpenAI et de Claude guidées par des "Intents" (Prompts Systèmes) stricts configurés par l'administrateur, garantissant un ton professionnel et un contenu pertinent.
+    
+    \item \textbf{Mémoire d'Entreprise via RAG\acref{29} (Retrieval-Augmented Generation) :} La plateforme intègre une architecture RAG. L'IA interroge la base de connaissances interne de CBI pour s'appuyer sur les architectures validées précédemment, ce qui ancre les textes générés dans un contexte d'entreprise précis et limite les hallucinations\gloref{6}.
+    
+    
+    
+    \item \textbf{Portabilité Web vers Mobile Aboutie :} L'interface utilisateur a été pensée "Mobile-First" et portée avec succès sur les terminaux mobiles. Les ingénieurs et administrateurs peuvent désormais consulter les formulaires, valider des générations et suivre les audits directement depuis leurs smartphones ou tablettes, ce qui facilite le suivi à distance.
+    
+    \item \textbf{Qualité Industrielle et Standardisation :} L'adoption du moteur de templating Jinja2 garantit des documents finaux structurés, respectant fidèlement la charte graphique de l'entreprise, sans risque de déformation liée à des manipulations humaines.
+    
+    \item \textbf{Sécurité et Traçabilité :} L'utilisation de tokens JWT, la séparation des rôles (Ingénieur/Administrateur via RBAC\acref{31}) et la mise en place d'un journal d'audit global (AuditLogs) renforcent la sécurité et la gouvernance des données.
+\end{itemize}
+
+\section*{Perspectives d’Évolution}
+
+Bien que la plateforme soit pleinement fonctionnelle, modulaire et accessible sur mobile, plusieurs pistes d’amélioration stratégiques peuvent être envisagées pour l'avenir :
+
+\begin{enumerate}
+    \item \textbf{Évolution vers un Système Multi-Agents (Autonomous AI) :}
+    Dépasser le simple Prompt Chaining en implémentant des agents IA autonomes capables de débattre entre eux (ex: un agent Rédacteur confronté à un agent Critique Technique) pour affiner la qualité du document avant sa validation finale.
+    
+    \item \textbf{Intégration CMDB\acref{3} en Temps Réel :}
+    Remplacer l'upload statique de fichiers Excel par une connexion API directe aux outils de supervision du client (Zabbix, Prometheus, vCenter) pour extraire l'état réel et instantané des serveurs lors de la génération du rapport.
+    
+    \item \textbf{Analyse Visuelle (Multimodalité) :}
+    Permettre à l'ingénieur de télécharger une image de schéma réseau (Visio, Draw.io). Le modèle IA (ex: Claude Sonnet 4.6 Vision ou GPT-4o) analyserait l'image pour rédiger automatiquement la description technique des flux et des équipements illustrés.
+    
+    \item \textbf{Module d'Audit de Conformité (Compliance) :}
+    Ajouter une étape de validation où l'IA relit le document généré pour s'assurer qu'il respecte les normes de sécurité en vigueur (ISO 27001, RGPD) avant la livraison au client.
+    
+    \item \textbf{Exportation Multi-formats Automatisée (Doc-to-Slides) :}
+    Étendre le moteur de templating pour qu'il génère non seulement un rapport technique PDF/Word, mais aussi une présentation PowerPoint résumant automatiquement les points clés pour les comités de direction.
+    
+    \item \textbf{Édition Collaborative en Temps Réel :}
+    Mise en place de WebSockets sur le frontend React pour permettre à plusieurs ingénieurs de travailler simultanément sur le même formulaire de projet sans conflit de données.
+\end{enumerate}
+
+% =========================================================
+% BIBLIOGRAPHIE / RÉFÉRENCES
+% =========================================================
+\begin{thebibliography}{99}
+\addcontentsline{toc}{chapter}{Références Bibliographiques}
+
+% --- ARCHITECTURE & BACKEND ---
+\bibitem{fastapi}
+\textbf{FastAPI Documentation}. 
+\textit{Tiangolo.com}. Disponible sur : \url{https://fastapi.tiangolo.com/}
+
+\bibitem{python}
+\textbf{Python 3 Documentation}. 
+\textit{Python.org}. Disponible sur : \url{https://docs.python.org/3/}
+
+\bibitem{pydantic}
+\textbf{Pydantic: Data validation using Python type hints}. 
+\textit{Pydantic.dev}. Disponible sur : \url{https://docs.pydantic.dev/}
+
+% --- FRONTEND & MOBILE ---
+\bibitem{react}
+\textbf{React Documentation}. 
+\textit{React.dev}. Disponible sur : \url{https://react.dev/}
+
+\bibitem{vite}
+\textbf{Vite: Next Generation Frontend Tooling}. 
+\textit{Vitejs.dev}. Disponible sur : \url{https://vitejs.dev/}
+
+\bibitem{mui}
+\textbf{Material UI (MUI\acref{20}) Documentation}. 
+\textit{MUI.com}. Disponible sur : \url{https://mui.com/}
+
+% --- INTELLIGENCE ARTIFICIELLE & RAG ---
+\bibitem{openai}
+\textbf{OpenAI API Reference}. 
+\textit{Platform.OpenAI.com}. Disponible sur : \url{https://platform.openai.com/docs/api-reference}
+
+\bibitem{anthropic}
+\textbf{Anthropic Claude API Documentation}. 
+\textit{Docs.Anthropic.com}. Disponible sur : \url{https://docs.anthropic.com/claude/docs}
+
+\bibitem{rag_paper}
+Lewis, P. et al. \textbf{Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks}. 
+\textit{arXiv preprint arXiv:2005.11401} (2020). Disponible sur : \url{https://arxiv.org/abs/2005.11401}
+
+\bibitem{jinja2}
+\textbf{Jinja2 Documentation}. 
+\textit{PalletsProjects.com}. Disponible sur : \url{https://jinja.palletsprojects.com/}
+
+% --- BASE DE DONNÉES ---
+\bibitem{postgresql}
+\textbf{PostgreSQL Official Documentation}. 
+\textit{PostgreSQL.org}. Disponible sur : \url{https://www.postgresql.org/docs/}
+
+\bibitem{sqlalchemy}
+\textbf{SQLAlchemy: The Python SQL Toolkit and Object Relational Mapper}. 
+\textit{SQLAlchemy.org}. Disponible sur : \url{https://www.sqlalchemy.org/}
+
+% --- SÉCURITÉ & DEVOPS ---
+\bibitem{jwt}
+\textbf{JSON Web Tokens (JWT) Introduction}. 
+\textit{JWT.io}. Disponible sur : \url{https://jwt.io/introduction}
+
+\bibitem{docker}
+\textbf{Docker Documentation}. 
+\textit{Docker.com}. Disponible sur : \url{https://docs.docker.com/}
+
+% --- MÉTHODOLOGIE & OUTILS ---
+\bibitem{uml}
+\textbf{Unified Modeling Language (UML) Specification}. 
+\textit{Object Management Group (OMG)}. Disponible sur : \url{https://www.omg.org/spec/UML/}
+
+\bibitem{scrum}
+Schwaber, K., \& Sutherland, J. \textbf{The Scrum Guide}. 
+\textit{ScrumGuides.org}. Disponible sur : \url{https://scrumguides.org/}
+
+\end{thebibliography}
+
+\end{document}
