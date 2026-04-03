@@ -16,8 +16,8 @@ class Settings(BaseSettings):
     AUTH_COOKIE_PATH: str = "/"
     ADMIN_EMAIL: str = "admin@example.com"
     ADMIN_PASSWORD: str = "admin123"
-    USER_EMAIL: str = "user@example.com"
-    USER_PASSWORD: str = "user123"
+    USER_EMAIL: str = "engineer@test.com"
+    USER_PASSWORD: str = "engineer123"
 
     model_config = SettingsConfigDict(env_file=str(ENV_PATH), extra="ignore")
 
